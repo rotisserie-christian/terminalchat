@@ -14,11 +14,10 @@ It's meant to be a simple and free system for brainstorming ideas with total pri
    ```bash
    pip install -r requirements.txt
    ```
-   *Note: Ensure you have PyTorch installed with appropriate CUDA support if you intend to use GPU acceleration.*
 
 ## Usage
 
-Run the main application script:
+Run the main script:
 
 ```bash
 python main.py
