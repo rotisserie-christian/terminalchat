@@ -1,0 +1,6 @@
+transformers
+torch
+rich
+prompt_toolkit
+accelerate
+questionary
