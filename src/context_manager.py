@@ -1,11 +1,13 @@
 from typing import List, Dict
+from src.system_prompt import load_system_prompt
 
 class ContextManager:
-    def __init__(self, system_prompt="You are a helpful assistant. Keep your answers brief and concise. Do not ramble."):
-        self.system_prompt = system_prompt
+    def __init__(self, system_prompt=None):
+        prompt = system_prompt if system_prompt is not None else load_system_prompt()
+        self.system_prompt = prompt
         self.messages: List[Dict[str, str]] = []
-        if system_prompt:
-            self.messages.append({"role": "system", "content": system_prompt})
+        if prompt:
+            self.messages.append({"role": "system", "content": prompt})
 
     def add_message(self, role: str, content: str):
         self.messages.append({"role": role, "content": content})

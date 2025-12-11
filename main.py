@@ -5,7 +5,41 @@ from src.context_manager import ContextManager
 from src.storage import ChatStorage
 from src.ui import TerminalUI
 from src.setup_sequence import SetupSequence
+from src.system_prompt import (
+    load_system_prompt,
+    get_default_prompt,
+    save_prompt,
+    delete_prompt,
+)
 import src.config as config
+
+
+def handle_system_prompt_menu(ui: TerminalUI):
+    """Interactive system prompt menu loop."""
+    while True:
+        selection = ui.show_system_prompt_menu()
+        if selection is None or selection == "< Back":
+            return
+        if selection == "Default Prompt":
+            ui.display_prompt_panel("Default System Prompt", get_default_prompt())
+        elif selection == "New Prompt":
+            current_prompt = load_system_prompt()
+            edited = ui.edit_prompt_in_editor(current_prompt)
+            if edited is None:
+                continue
+            action = ui.prompt_after_edit_action()
+            if action == "Save":
+                if save_prompt(edited):
+                    ui.display_system_message("Custom system prompt saved.")
+                else:
+                    ui.display_error("Failed to save the system prompt.")
+            elif action == "Delete":
+                if delete_prompt():
+                    ui.display_system_message("Custom system prompt deleted; default restored.")
+                else:
+                    ui.display_error("Failed to delete the system prompt file.")
+            else:
+                ui.display_system_message("Changes discarded.")
 
 def main():
     ui = TerminalUI()
@@ -27,6 +61,9 @@ def main():
             setup.run()
             # Reload config after setup
             config.load_config()
+            continue
+        elif choice == "System Prompt":
+            handle_system_prompt_menu(ui)
             continue
         elif choice == "Load Chat":
             chats = storage.list_chats()
