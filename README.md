@@ -50,7 +50,9 @@ Settings are stored in `config.json`. You can modify this file directly or use t
 
 ## Project Structure
 
-- `main.py`: Application entry point.
-- `src/`: Source code modules. See `src/README.md` for details.
-- `chats/`: Directory where chat history is saved (JSON format).
-- `config.json`: User configuration file.
+- `main.py`: Entry point.
+- `src/`: See `src/README.md`
+- `chats/`: Where chat history is saved (JSON format).
+- `prompts/`: System prompts.
+- `tests/`: See `tests/README.md`
+- `config.json`: 👍
