@@ -15,12 +15,22 @@ It's meant to be a simple and free system for brainstorming ideas with total pri
    pip install -r requirements.txt
    ```
 
+3. Install CLI:
+   ```bash
+   pip install -e .
+   ```
+
 ## Usage
 
 Run the main script:
 
 ```bash
 python main.py
+```
+
+Run with CLI:
+```bash
+terminalchat 
 ```
 
 ### Main Menu
