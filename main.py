@@ -8,8 +8,6 @@ from src.setup_sequence import SetupSequence
 from src.system_prompt import (
     load_system_prompt,
     get_default_prompt,
-    save_prompt_to_file,
-    delete_prompt_file,
     list_prompts,
     load_prompt,
     set_active_prompt,

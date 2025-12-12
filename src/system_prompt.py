@@ -49,30 +49,7 @@ def load_prompt(name: str) -> Optional[str]:
     path = PROMPTS_DIR / f"{name}.md"
     return _read_file(path)
 
-def save_prompt_to_file(name: str, text: str) -> bool:
-    """
-    Save the provided text to a specific prompt file in the prompts directory.
-    If name is 'system', it updates the active prompt.
-    """
-    try:
-        PROMPTS_DIR.mkdir(parents=True, exist_ok=True)
-        path = PROMPTS_DIR / f"{name}.md"
-        path.write_text(text.strip() + "\n", encoding="utf-8")
-        return True
-    except Exception:
-        return False
 
-def delete_prompt_file(name: str) -> bool:
-    """
-    Delete a specific prompt file. Returns True if deleted or absent.
-    """
-    try:
-        path = PROMPTS_DIR / f"{name}.md"
-        if path.exists():
-            path.unlink()
-        return True
-    except Exception:
-        return False
 
 def set_active_prompt(name: str) -> bool:
     """
@@ -82,7 +59,12 @@ def set_active_prompt(name: str) -> bool:
     content = load_prompt(name)
     if content is None:
         return False
-    return save_prompt_to_file("system", content)
+    try:
+        PROMPTS_DIR.mkdir(parents=True, exist_ok=True)
+        ACTIVE_PROMPT_PATH.write_text(content.strip() + "\n", encoding="utf-8")
+        return True
+    except Exception:
+        return False
 
 def _read_file(path: Path) -> Optional[str]:
     """Internal helper to read a file if present and non-empty."""

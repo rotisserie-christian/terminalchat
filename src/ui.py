@@ -119,10 +119,7 @@ class TerminalUI:
             return None
         return choice
 
-    def show_system_prompt_menu(self):
-        self.clear_screen()
-        # This is now just a placeholder or could be removed if main.py changes flow
-        pass
+
 
     def select_system_prompt(self, prompts):
         self.clear_screen()
@@ -160,11 +157,4 @@ class TerminalUI:
         questionary.press_any_key_to_continue("Press any key to return").ask()
         self.clear_screen()
 
-    def prompt_after_edit_action(self):
-        return questionary.select(
-            "What would you like to do?",
-            choices=["Save", "Cancel", "Delete"],
-        ).ask()
 
-    def confirm_delete_prompt(self):
-        return questionary.confirm("Delete the custom system prompt file?", default=False).ask()
