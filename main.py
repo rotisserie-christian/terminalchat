@@ -37,7 +37,7 @@ def main():
         if choice == "Exit":
             sys.exit(0)
         elif choice == "Settings":
-            setup = SetupSequence()
+            setup = SetupSequence(ui.console)
             setup.run()
             # Reload config after setup
             config.load_config()
