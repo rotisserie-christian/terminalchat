@@ -1,5 +1,5 @@
 {
-  "model_name": "Qwen/Qwen3-0.6B",
+  "model_name": "HuggingFaceTB/SmolLM-135M-Instruct",
   "user_display_name": "me",
   "model_display_name": "bot",
   "primary_color": "green",

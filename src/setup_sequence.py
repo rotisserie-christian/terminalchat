@@ -77,9 +77,39 @@ class SetupSequence:
                 break
             
             elif choice == "Model":
-                new_model = self._get_input_with_esc("Model", config.MODEL_NAME)
-                if new_model and new_model.strip():
-                     config.MODEL_NAME = new_model.strip()
+                model_choice = questionary.select(
+                    "Model Selection",
+                    choices=[
+                        "Select from popular models",
+                        "Enter manually",
+                        "Back"
+                    ],
+                    style=style,
+                    use_arrow_keys=True
+                ).ask()
+
+                if model_choice == "Select from popular models":
+                    selected_model = questionary.select(
+                        "Select Model",
+                        choices=[
+                            "Qwen/Qwen2.5-1.5B-Instruct",
+                            "microsoft/phi-2",
+                            "google/gemma-2b-it",
+                            "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+                            "HuggingFaceTB/SmolLM-135M-Instruct",
+                            "Back"
+                        ],
+                        style=style,
+                        use_arrow_keys=True
+                    ).ask()
+                    
+                    if selected_model != "Back":
+                        config.MODEL_NAME = selected_model
+
+                elif model_choice == "Enter manually":
+                    new_model = self._get_input_with_esc("Model", config.MODEL_NAME)
+                    if new_model and new_model.strip():
+                         config.MODEL_NAME = new_model.strip()
 
             elif choice == "User Display Name":
                 new_user_name = self._get_input_with_esc("User Display Name", config.USER_DISPLAY_NAME)
