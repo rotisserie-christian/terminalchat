@@ -1,9 +1,15 @@
 from typing import List, Dict
 from src.system_prompt import load_system_prompt
 
+# Sentinel value to distinguish between "not provided" and "explicitly None"
+_USE_DEFAULT = object()
+
 class ContextManager:
-    def __init__(self, system_prompt=None):
-        prompt = system_prompt if system_prompt is not None else load_system_prompt()
+    def __init__(self, system_prompt=_USE_DEFAULT):
+        if system_prompt is _USE_DEFAULT:
+            prompt = load_system_prompt()
+        else:
+            prompt = system_prompt
         self.system_prompt = prompt
         self.messages: List[Dict[str, str]] = []
         if prompt:
