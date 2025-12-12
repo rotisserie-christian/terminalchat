@@ -10,15 +10,18 @@ Clone the repo:
 git clone https://github.com/rotisserie-christian/terminalchat
 ```
 
+
 Install dependencies (Python 3.10+):
 ```bash
 pip install -r requirements.txt
 ```
 
+
 Install CLI:
 ```bash
 pip install -e .
 ```
+
 
 ## Usage
 
@@ -28,10 +31,12 @@ Run the main script:
 python main.py
 ```
 
+
 Run with CLI:
 ```bash
 terminalchat 
 ```
+
 
 ### Main Menu
 - **New Chat**: Start a fresh conversation.
