@@ -42,7 +42,7 @@ terminalchat
 ### Controls
 - **Arrow Keys**: Navigate menus.
 - **Enter**: Select an option or send a message.
-- **Exit/Quit**: Type `exit` or `quit` during a chat to save and return to the menu/close.
+- **Exit/Quit**: `ctrl + c` or `exit` in the main menu.
 
 ## Configuration
 
