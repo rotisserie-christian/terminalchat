@@ -5,20 +5,20 @@ It's meant to be a simple and free system for brainstorming ideas with total pri
 
 ## Installation
 
-1. Clone the repo:
-   ```bash
-   git clone https://github.com/rotisserie-christian/terminalchat
-   ```
+Clone the repo:
+```bash
+git clone https://github.com/rotisserie-christian/terminalchat
+```
 
-2. Install dependencies (Python 3.10+):
-   ```bash
-   pip install -r requirements.txt
-   ```
+Install dependencies (Python 3.10+):
+```bash
+pip install -r requirements.txt
+```
 
-3. Install CLI:
-   ```bash
-   pip install -e .
-   ```
+Install CLI:
+```bash
+pip install -e .
+```
 
 ## Usage
 
