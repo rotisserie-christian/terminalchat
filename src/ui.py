@@ -73,12 +73,18 @@ class TerminalUI:
             ('text', ''),
             ('disabled', 'fg:#858585 italic')
         ])
-        return questionary.select(
-            "Select an option:",
-            choices=["New Chat", "Load Chat", "Settings", "Exit"],
-            style=style,
-            use_arrow_keys=True
-        ).ask()
+        try:
+            choice = questionary.select(
+                "Select an option:",
+                choices=["New Chat", "Load Chat", "Settings", "Exit"],
+                style=style,
+                use_arrow_keys=True
+            ).ask()
+            if choice is None:
+                return "Exit"
+            return choice
+        except KeyboardInterrupt:
+            return "Exit"
 
     def show_chat_selection(self, chats):
         if not chats:
@@ -97,12 +103,17 @@ class TerminalUI:
             ('selected', 'fg:cyan bold'),
         ])
         
-        choice = questionary.select(
-            "Select a chat to load:",
-            choices=choices,
-            style=style,
-            use_arrow_keys=True
-        ).ask()
+        try:
+            choice = questionary.select(
+                "Select a chat to load:",
+                choices=choices,
+                style=style,
+                use_arrow_keys=True
+            ).ask()
+            if choice is None:
+                return None
+        except KeyboardInterrupt:
+            return None
         
         if choice == "< Back":
             return None
@@ -129,12 +140,18 @@ class TerminalUI:
             ('highlighted', 'fg:cyan bold'),
             ('selected', 'fg:cyan bold'),
         ])
-        return questionary.select(
-            "Select Active System Prompt",
-            choices=choices,
-            style=style,
-            use_arrow_keys=True
-        ).ask()
+        try:
+            choice = questionary.select(
+                "Select Active System Prompt",
+                choices=choices,
+                style=style,
+                use_arrow_keys=True
+            ).ask()
+            if choice is None:
+                return None
+            return choice
+        except KeyboardInterrupt:
+            return None
 
     def display_prompt_panel(self, title: str, content: str):
         # Clear to avoid clutter and show the prompt cleanly.

@@ -81,8 +81,8 @@ def main():
 
     while True:
         user_input = ui.get_input()
-        if user_input is None or user_input.lower() in ('exit', 'quit'):
-            # Auto-save on exit
+        if user_input is None:
+            # Auto-save on exit (Ctrl+C at prompt)
             saved_file = storage.save_chat(context_manager.get_messages(), loaded_filename)
             ui.display_system_message(f"Chat saved to {saved_file}")
             break
@@ -103,6 +103,12 @@ def main():
             generator = model_handler.generate_stream(prompt)
             full_response = ui.display_assistant_stream(generator)
             context_manager.add_message("assistant", full_response)
+        except KeyboardInterrupt:
+            # Handle Ctrl+C during generation
+            ui.display_system_message("\nGeneration interrupted by user.")
+            saved_file = storage.save_chat(context_manager.get_messages(), loaded_filename)
+            ui.display_system_message(f"Chat saved to {saved_file}")
+            break
         except Exception as e:
             ui.display_error(f"Generation failed: {e}")
 
