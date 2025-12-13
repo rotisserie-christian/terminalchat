@@ -8,7 +8,7 @@ from prompt_toolkit.styles import Style as PtStyle
 import questionary
 import src.config as config
 
-class SetupSequence:
+class ManageSettings:
     def __init__(self, console):
         self.console = console
         config.load_config()

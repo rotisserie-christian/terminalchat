@@ -4,7 +4,7 @@ from src.model_handler import ModelHandler
 from src.context_manager import ContextManager
 from src.storage import ChatStorage
 from src.ui import TerminalUI
-from src.setup_sequence import SetupSequence
+from src.manage_settings import ManageSettings
 from src.system_prompt import load_system_prompt
 import src.config as config
 import questionary
@@ -29,7 +29,7 @@ def main():
             if choice == "Exit":
                 sys.exit(0)
             elif choice == "Settings":
-                setup = SetupSequence(ui.console)
+                setup = ManageSettings(ui.console)
                 setup.run()
                 # Reload config after setup
                 config.load_config()
