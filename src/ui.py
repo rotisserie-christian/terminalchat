@@ -3,11 +3,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 from rich.console import Console
-from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.theme import Theme
-from rich.live import Live
-from rich.markdown import Markdown
 from prompt_toolkit import PromptSession
 from prompt_toolkit.styles import Style
 from prompt_toolkit.key_binding import KeyBindings
@@ -66,32 +63,14 @@ class TerminalUI:
     import shutil
 
     def display_assistant_stream(self, generator):
-        buffer = ""
-
-        header = f"[bold {config.SECONDARY_COLOR}]{config.MODEL_DISPLAY_NAME} >[/bold {config.SECONDARY_COLOR}]"
-
-        with Live(
-            Panel(
-                Markdown(""),
-                title=header,
-                border_style=config.SECONDARY_COLOR,
-                padding=(4, 4),
-            ),
-            console=self.console,
-            refresh_per_second=20,
-        ) as live:
-
-            for token in generator:
-                buffer += token
-                live.update(
-                    Panel(
-                        Markdown(buffer, style="assistant"),
-                        title=header,
-                        border_style=config.SECONDARY_COLOR,
-                        padding=(0, 5),
-                    )
-                )
-        return buffer
+        self.console.print(f"\n[bold {config.SECONDARY_COLOR}]{config.MODEL_DISPLAY_NAME} >[/bold {config.SECONDARY_COLOR}] ", end="")
+        current_text = ""
+        
+        for token in generator:
+            self.console.print(token, end="", soft_wrap=True)
+            current_text += token
+        self.console.print()  # Newline at end
+        return current_text
 
 
     def display_system_message(self, message):
