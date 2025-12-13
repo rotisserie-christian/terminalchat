@@ -49,7 +49,7 @@ class ModelHandler:
             streamer=streamer, 
             max_new_tokens=max_new_tokens,
             do_sample=True,
-            temperature=0.,
+            temperature=0.9,
             top_k=50,
             top_p=0.95,
         )

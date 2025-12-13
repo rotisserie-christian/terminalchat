@@ -92,8 +92,8 @@ class SetupSequence:
                     selected_model = questionary.select(
                         "Select Model",
                         choices=[
-                            "Qwen/Qwen2.5-1.5B-Instruct",
-                            "microsoft/phi-2",
+                            "openai-community/gpt2-medium",
+                            "openai-community/gpt2-large",
                             "google/gemma-2b-it",
                             "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
                             "HuggingFaceTB/SmolLM-135M-Instruct",
