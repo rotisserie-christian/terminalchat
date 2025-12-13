@@ -50,7 +50,7 @@ class TerminalUI:
                 Markdown(""),
                 title=header,
                 border_style=config.SECONDARY_COLOR,
-                padding=(0, 1),
+                padding=(4, 4),
             ),
             console=self.console,
             refresh_per_second=20,
