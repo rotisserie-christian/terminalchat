@@ -3,5 +3,6 @@
   "user_display_name": "me",
   "model_display_name": "bot",
   "primary_color": "green",
-  "secondary_color": "blue"
+  "secondary_color": "blue",
+  "autosave_enabled": false
 }

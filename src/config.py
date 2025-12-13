@@ -8,6 +8,7 @@ DEFAULT_USER_DISPLAY_NAME = "Me"
 DEFAULT_MODEL_DISPLAY_NAME = "Model"
 DEFAULT_PRIMARY_COLOR = "green"
 DEFAULT_SECONDARY_COLOR = "blue"
+DEFAULT_AUTOSAVE_ENABLED = False
 
 # Configuration values (will be loaded from file or use defaults)
 MODEL_NAME = DEFAULT_MODEL_NAME
@@ -15,12 +16,13 @@ USER_DISPLAY_NAME = DEFAULT_USER_DISPLAY_NAME
 MODEL_DISPLAY_NAME = DEFAULT_MODEL_DISPLAY_NAME
 PRIMARY_COLOR = DEFAULT_PRIMARY_COLOR
 SECONDARY_COLOR = DEFAULT_SECONDARY_COLOR
+AUTOSAVE_ENABLED = DEFAULT_AUTOSAVE_ENABLED
 
 CONFIG_FILE = "config.json"
 
 def load_config():
     """Load configuration from file, or use defaults if file doesn't exist."""
-    global MODEL_NAME, USER_DISPLAY_NAME, MODEL_DISPLAY_NAME, PRIMARY_COLOR, SECONDARY_COLOR
+    global MODEL_NAME, USER_DISPLAY_NAME, MODEL_DISPLAY_NAME, PRIMARY_COLOR, SECONDARY_COLOR, AUTOSAVE_ENABLED
     
     if os.path.exists(CONFIG_FILE):
         try:
@@ -31,6 +33,7 @@ def load_config():
                 MODEL_DISPLAY_NAME = config.get("model_display_name", DEFAULT_MODEL_DISPLAY_NAME)
                 PRIMARY_COLOR = config.get("primary_color", DEFAULT_PRIMARY_COLOR)
                 SECONDARY_COLOR = config.get("secondary_color", DEFAULT_SECONDARY_COLOR)
+                AUTOSAVE_ENABLED = config.get("autosave_enabled", DEFAULT_AUTOSAVE_ENABLED)
         except Exception as e:
             print(f"Error loading config: {e}. Using defaults.")
     else:
@@ -40,6 +43,7 @@ def load_config():
         MODEL_DISPLAY_NAME = DEFAULT_MODEL_DISPLAY_NAME
         PRIMARY_COLOR = DEFAULT_PRIMARY_COLOR
         SECONDARY_COLOR = DEFAULT_SECONDARY_COLOR
+        AUTOSAVE_ENABLED = DEFAULT_AUTOSAVE_ENABLED
 
 def save_config():
     """Save current configuration to file."""
@@ -48,7 +52,8 @@ def save_config():
         "user_display_name": USER_DISPLAY_NAME,
         "model_display_name": MODEL_DISPLAY_NAME,
         "primary_color": PRIMARY_COLOR,
-        "secondary_color": SECONDARY_COLOR
+        "secondary_color": SECONDARY_COLOR,
+        "autosave_enabled": AUTOSAVE_ENABLED
     }
     try:
         with open(CONFIG_FILE, 'w') as f:

@@ -67,6 +67,7 @@ class SetupSequence:
                     "Model",
                     "User Display Name",
                     "Model Display Name",
+                    "Autosave Chat",
                     "Back"
                 ],
                 style=style,
@@ -121,6 +122,17 @@ class SetupSequence:
                 if new_model_name and new_model_name.strip():
                     config.MODEL_DISPLAY_NAME = new_model_name.strip()
 
+            elif choice == "Autosave Chat":
+                current_state = "enabled" if config.AUTOSAVE_ENABLED else "disabled"
+                toggle_result = questionary.confirm(
+                    f"Autosave is currently {current_state}. Enable autosave?",
+                    default=config.AUTOSAVE_ENABLED,
+                    style=style
+                ).ask()
+                
+                if toggle_result is not None:
+                    config.AUTOSAVE_ENABLED = toggle_result
+
         # Save configuration
         if config.save_config():
             self.console.print(f"\n[green]✓ Configuration saved to {config.CONFIG_FILE}[/green]\n")
@@ -129,13 +141,15 @@ class SetupSequence:
     
     def _show_summary(self):
         """Display a summary of current configuration."""
+        autosave_status = "[green]Enabled[/green]" if config.AUTOSAVE_ENABLED else "[red]Disabled[/red]"
         self.console.print(Panel.fit(
             f"[bold]Current Configuration[/bold]\n\n"
             f"Model: [cyan]{config.MODEL_NAME}[/cyan]\n"
             f"User Display: [cyan]{config.USER_DISPLAY_NAME}[/cyan]\n"
             f"Model Display: [cyan]{config.MODEL_DISPLAY_NAME}[/cyan]\n"
             f"Primary Color: [cyan]{config.PRIMARY_COLOR}[/cyan]\n"
-            f"Secondary Color: [cyan]{config.SECONDARY_COLOR}[/cyan]",
+            f"Secondary Color: [cyan]{config.SECONDARY_COLOR}[/cyan]\n"
+            f"Autosave: {autosave_status}",
             border_style="cyan"
         ))
 

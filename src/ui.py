@@ -40,10 +40,15 @@ class TerminalUI:
             """Ctrl+R: Return to main menu"""
             event.app.exit(result='RETURN_TO_MENU')
         
+        @bindings.add('c-s')
+        def _(event):
+            """Ctrl+S: Save chat"""
+            event.app.exit(result='MANUAL_SAVE')
+        
         try:
             # Display helpful labels below the input
             bottom_toolbar = HTML(
-                f'<style fg="#909090">Ctrl+C: Exit  |  Ctrl+R: Return to Menu</style>'
+                f'<style fg="#909090">Ctrl+C: Exit  |  Ctrl+R: Return to Menu  |  Ctrl+S: Save</style>'
             )
             
             result = self.session.prompt(

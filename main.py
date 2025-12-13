@@ -85,6 +85,15 @@ def main():
         while True:
             user_input = ui.get_input()
             
+            # Check for manual save signal
+            if user_input == 'MANUAL_SAVE':
+                saved_file = storage.save_chat(context_manager.get_messages(), loaded_filename)
+                ui.display_system_message(f"Chat manually saved to {saved_file}")
+                # Update loaded_filename if this was a new chat
+                if loaded_filename is None:
+                    loaded_filename = saved_file
+                continue
+            
             # Check for special return to menu signal
             if user_input == 'RETURN_TO_MENU':
                 saved_file = storage.save_chat(context_manager.get_messages(), loaded_filename)
@@ -115,6 +124,15 @@ def main():
                 generator = model_handler.generate_stream(prompt)
                 full_response = ui.display_assistant_stream(generator)
                 context_manager.add_message("assistant", full_response)
+                
+                # Autosave after assistant response if enabled
+                if config.AUTOSAVE_ENABLED:
+                    saved_file = storage.save_chat(context_manager.get_messages(), loaded_filename)
+                    # Update loaded_filename if this was a new chat
+                    if loaded_filename is None:
+                        loaded_filename = saved_file
+                    ui.display_system_message(f"[dim]Chat auto-saved to {saved_file}[/dim]")
+                
             except KeyboardInterrupt:
                 # Handle Ctrl+C during generation
                 ui.display_system_message("\nGeneration interrupted by user.")
