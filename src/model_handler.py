@@ -40,7 +40,7 @@ class ModelHandler:
         
         print(f"Detected context window: {self.context_window}")
 
-    def generate_stream(self, prompt, max_new_tokens=256):
+    def generate_stream(self, prompt, max_new_tokens=128):
         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
         
         streamer = TextIteratorStreamer(self.tokenizer, skip_prompt=True, decode_kwargs={"skip_special_tokens": True})
@@ -49,7 +49,7 @@ class ModelHandler:
             streamer=streamer, 
             max_new_tokens=max_new_tokens,
             do_sample=True,
-            temperature=0.7,
+            temperature=0.,
             top_k=50,
             top_p=0.95,
         )

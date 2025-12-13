@@ -2,17 +2,16 @@ import os
 import subprocess
 import tempfile
 from pathlib import Path
-
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.theme import Theme
 from rich.live import Live
+from rich.markdown import Markdown
 from prompt_toolkit import PromptSession
 from prompt_toolkit.styles import Style
 import questionary
 import src.config as config
-import shutil 
 
 class TerminalUI:
     def __init__(self):
@@ -42,39 +41,32 @@ class TerminalUI:
     import shutil
 
     def display_assistant_stream(self, generator):
-        width = shutil.get_terminal_size().columns
-
-        prefix = f"[bold {config.SECONDARY_COLOR}]{config.MODEL_DISPLAY_NAME} >[/bold {config.SECONDARY_COLOR}] "
-        self.console.print(f"\n{prefix}", end="")
-
-        current_line_len = len(config.MODEL_DISPLAY_NAME) + 3
-        current_text = ""
         buffer = ""
 
-        for token in generator:
-            buffer += token
+        header = f"[bold {config.SECONDARY_COLOR}]{config.MODEL_DISPLAY_NAME} >[/bold {config.SECONDARY_COLOR}]"
 
-            while " " in buffer:
-                word, buffer = buffer.split(" ", 1)
-                word += " "
+        with Live(
+            Panel(
+                Markdown(""),
+                title=header,
+                border_style=config.SECONDARY_COLOR,
+                padding=(0, 1),
+            ),
+            console=self.console,
+            refresh_per_second=20,
+        ) as live:
 
-                if current_line_len + len(word) > width:
-                    self.console.print()
-                    current_line_len = 0
-
-                self.console.print(word, end="")
-                current_text += word
-                current_line_len += len(word)
-
-        # Print remaining text
-        if buffer:
-            if current_line_len + len(buffer) > width:
-                self.console.print()
-            self.console.print(buffer, end="")
-            current_text += buffer
-
-        self.console.print()
-        return current_text
+            for token in generator:
+                buffer += token
+                live.update(
+                    Panel(
+                        Markdown(buffer, style="assistant"),
+                        title=header,
+                        border_style=config.SECONDARY_COLOR,
+                        padding=(0, 5),
+                    )
+                )
+        return buffer
 
 
     def display_system_message(self, message):
