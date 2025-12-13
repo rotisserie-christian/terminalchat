@@ -5,18 +5,9 @@ from src.context_manager import ContextManager
 from src.storage import ChatStorage
 from src.ui import TerminalUI
 from src.setup_sequence import SetupSequence
-from src.system_prompt import (
-    load_system_prompt,
-    get_default_prompt,
-    list_prompts,
-    load_prompt,
-    set_active_prompt,
-    get_active_prompt_path,
-)
+from src.system_prompt import load_system_prompt
 import src.config as config
 import questionary
-
-
 
 
 def main():
@@ -136,7 +127,7 @@ def main():
             except Exception as e:
                 ui.display_error(f"Generation failed: {e}")
         
-        # If we broke out of chat loop to return to menu, continue outer loop
+        # If user wants to return to menu, continue outer loop
         if return_to_menu:
             continue
         else:
