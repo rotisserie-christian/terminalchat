@@ -12,6 +12,7 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.styles import Style
 import questionary
 import src.config as config
+import shutil 
 
 class TerminalUI:
     def __init__(self):
@@ -38,15 +39,43 @@ class TerminalUI:
     def display_user_message(self, message):
         pass
 
+    import shutil
+
     def display_assistant_stream(self, generator):
-        self.console.print(f"\n[bold {config.SECONDARY_COLOR}]{config.MODEL_DISPLAY_NAME} >[/bold {config.SECONDARY_COLOR}] ", end="")
+        width = shutil.get_terminal_size().columns
+
+        prefix = f"[bold {config.SECONDARY_COLOR}]{config.MODEL_DISPLAY_NAME} >[/bold {config.SECONDARY_COLOR}] "
+        self.console.print(f"\n{prefix}", end="")
+
+        current_line_len = len(config.MODEL_DISPLAY_NAME) + 3
         current_text = ""
-        
+        buffer = ""
+
         for token in generator:
-            self.console.print(token, end="")
-            current_text += token
-        self.console.print() # Newline at end
+            buffer += token
+
+            while " " in buffer:
+                word, buffer = buffer.split(" ", 1)
+                word += " "
+
+                if current_line_len + len(word) > width:
+                    self.console.print()
+                    current_line_len = 0
+
+                self.console.print(word, end="")
+                current_text += word
+                current_line_len += len(word)
+
+        # Print remaining text
+        if buffer:
+            if current_line_len + len(buffer) > width:
+                self.console.print()
+            self.console.print(buffer, end="")
+            current_text += buffer
+
+        self.console.print()
         return current_text
+
 
     def display_system_message(self, message):
         self.console.print(f"[dim]{message}[/dim]")
