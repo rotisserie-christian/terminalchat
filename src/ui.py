@@ -10,6 +10,8 @@ from rich.live import Live
 from rich.markdown import Markdown
 from prompt_toolkit import PromptSession
 from prompt_toolkit.styles import Style
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.formatted_text import HTML
 import questionary
 import src.config as config
 
@@ -30,8 +32,26 @@ class TerminalUI:
         self.console.print(Panel.fit(f"[bold {config.SECONDARY_COLOR}]Terminal Chat[/bold {config.SECONDARY_COLOR}]\n[dim]christianwaters.dev[/dim]", border_style=config.SECONDARY_COLOR))
 
     def get_input(self):
+        # Create key bindings for shortcuts
+        bindings = KeyBindings()
+        
+        @bindings.add('c-r')
+        def _(event):
+            """Ctrl+R: Return to main menu"""
+            event.app.exit(result='RETURN_TO_MENU')
+        
         try:
-            return self.session.prompt(f"\n[{config.USER_DISPLAY_NAME}] > ")
+            # Display helpful labels below the input
+            bottom_toolbar = HTML(
+                f'<style fg="#909090">Ctrl+C: Exit  |  Ctrl+R: Return to Menu</style>'
+            )
+            
+            result = self.session.prompt(
+                f"\n[{config.USER_DISPLAY_NAME}] > ",
+                key_bindings=bindings,
+                bottom_toolbar=bottom_toolbar
+            )
+            return result
         except (EOFError, KeyboardInterrupt):
             return None
 
