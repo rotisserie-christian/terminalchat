@@ -1,6 +1,8 @@
 import os
 import subprocess
 import tempfile
+import sys
+import shutil
 from pathlib import Path
 from rich.console import Console
 from rich.panel import Panel
@@ -11,6 +13,7 @@ from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.formatted_text import HTML
 import questionary
 import src.config as config
+
 
 class TerminalUI:
     def __init__(self):
@@ -60,15 +63,59 @@ class TerminalUI:
     def display_user_message(self, message):
         pass
 
-    import shutil
 
     def display_assistant_stream(self, generator):
-        self.console.print(f"\n[bold {config.SECONDARY_COLOR}]{config.MODEL_DISPLAY_NAME} >[/bold {config.SECONDARY_COLOR}] ", end="")
+        # Get terminal width
+        terminal_width = shutil.get_terminal_size().columns
+        # Leave a small margin to be safe
+        safe_width = terminal_width - 3
+        
+        # Print the assistant prefix
+        prefix = f"\n[bold {config.SECONDARY_COLOR}]{config.MODEL_DISPLAY_NAME} >[/bold {config.SECONDARY_COLOR}] "
+        self.console.print(prefix, end="")
+        
         current_text = ""
+        buffer = ""
+        # Track current line length (start with prefix length, rough estimate)
+        current_line_length = len(f"{config.MODEL_DISPLAY_NAME} > ")
         
         for token in generator:
-            self.console.print(token, end="", soft_wrap=True)
             current_text += token
+            buffer += token
+            
+            # Print when we hit whitespace/punctuation OR buffer gets long
+            should_flush = (
+                any(char in token for char in [' ', '\n', '\t', '.', ',', '!', '?', ';', ':']) 
+                or len(buffer) > 20
+            )
+            
+            if should_flush:
+                # Check if this buffer would exceed terminal width
+                if current_line_length + len(buffer) > safe_width:
+                    # Insert a newline before printing
+                    sys.stdout.write('\n')
+                    current_line_length = 0
+                
+                sys.stdout.write(buffer)
+                sys.stdout.flush()
+                
+                # Update line length tracker
+                if '\n' in buffer:
+                    # Reset to length after the last newline
+                    last_newline_pos = buffer.rfind('\n')
+                    current_line_length = len(buffer) - last_newline_pos - 1
+                else:
+                    current_line_length += len(buffer)
+                
+                buffer = ""
+        
+        # Print any remaining buffered text
+        if buffer:
+            if current_line_length + len(buffer) > safe_width:
+                sys.stdout.write('\n')
+            sys.stdout.write(buffer)
+            sys.stdout.flush()
+        
         self.console.print()  # Newline at end
         return current_text
 
