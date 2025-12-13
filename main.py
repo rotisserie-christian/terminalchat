@@ -96,16 +96,12 @@ def main():
             
             # Check for special return to menu signal
             if user_input == 'RETURN_TO_MENU':
-                saved_file = storage.save_chat(context_manager.get_messages(), loaded_filename)
-                ui.display_system_message(f"Chat saved to {saved_file}")
                 ui.display_system_message("Returning to main menu...")
                 return_to_menu = True
                 break
             
             if user_input is None:
-                # Auto-save on exit (Ctrl+C at prompt)
-                saved_file = storage.save_chat(context_manager.get_messages(), loaded_filename)
-                ui.display_system_message(f"Chat saved to {saved_file}")
+                # Exit on Ctrl+C at prompt (no auto-save)
                 return  # Exit application
             
             if not user_input.strip():
@@ -134,10 +130,8 @@ def main():
                     ui.display_system_message(f"[dim]Chat auto-saved to {saved_file}[/dim]")
                 
             except KeyboardInterrupt:
-                # Handle Ctrl+C during generation
+                # Handle Ctrl+C during generation (no auto-save)
                 ui.display_system_message("\nGeneration interrupted by user.")
-                saved_file = storage.save_chat(context_manager.get_messages(), loaded_filename)
-                ui.display_system_message(f"Chat saved to {saved_file}")
                 return  # Exit application
             except Exception as e:
                 ui.display_error(f"Generation failed: {e}")
