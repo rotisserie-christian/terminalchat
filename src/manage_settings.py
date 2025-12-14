@@ -8,6 +8,7 @@ import questionary
 import sys
 import src.config as config
 
+
 class ManageSettings:
     """
     Allows user to manage these settings:
@@ -15,10 +16,12 @@ class ManageSettings:
     - Model (select from list/enter manually)
     - User Display Name (enter manually)
     - Model Display Name (enter manually)
+    - Model Parameters (temperature, top-k, top-p, max tokens)
     - Autosave Chat (enabled/disabled)
 
     Settings are persisted to config.json
     """
+    
     def __init__(self, console):
         self.console = console
         config.load_config()
@@ -34,7 +37,6 @@ class ManageSettings:
         def _(event):
             event.app.exit(result=None)
 
-        # Style matching the app theme roughly
         style = PtStyle.from_dict({
             'prompt': f'ansi{config.PRIMARY_COLOR} bold',
         })
@@ -42,18 +44,166 @@ class ManageSettings:
         session = PromptSession(key_bindings=bindings, style=style)
         
         try:
-            # Print label manually using rich for consistency before the prompt
             self.console.print(f"\n[yellow]{label}[/yellow]")
             self.console.print(f"[dim]Current: {default} (Press Esc to go back)[/dim]")
             
             result = session.prompt(f"> ", default=default)
             return result
         except KeyboardInterrupt:
-            # Exit the entire application
             sys.exit(0)
+    
+    def _get_float_input(self, label: str, current: float, min_val: float, max_val: float) -> float | None:
+        """
+        Get validated float input within a range.
+        
+        Args:
+            label: Parameter name to display
+            current: Current value
+            min_val: Minimum allowed value
+            max_val: Maximum allowed value
+            
+        Returns:
+            float: Valid input value, or None if cancelled
+        """
+        bindings = KeyBindings()
+
+        @bindings.add(Keys.Escape)
+        def _(event):
+            event.app.exit(result=None)
+
+        style = PtStyle.from_dict({
+            'prompt': f'ansi{config.PRIMARY_COLOR} bold',
+        })
+        
+        session = PromptSession(key_bindings=bindings, style=style)
+        
+        while True:
+            try:
+                self.console.print(f"\n[yellow]{label}[/yellow]")
+                self.console.print(f"[dim]Current: {current} | Range: {min_val}-{max_val} (Press Esc to go back)[/dim]")
+                
+                result = session.prompt(f"> ", default=str(current))
+                
+                if result is None:
+                    return None
+                
+                # Try to parse as float
+                try:
+                    value = float(result)
+                    
+                    # Validate range
+                    if value < min_val or value > max_val:
+                        self.console.print(f"[red]Value must be between {min_val} and {max_val}[/red]")
+                        continue
+                    
+                    return value
+                    
+                except ValueError:
+                    self.console.print(f"[red]Invalid number. Please enter a value between {min_val} and {max_val}[/red]")
+                    continue
+                    
+            except KeyboardInterrupt:
+                sys.exit(0)
+    
+    def _get_int_input(self, label: str, current: int, min_val: int, max_val: int) -> int | None:
+        """
+        Get validated integer input within a range.
+        
+        Args:
+            label: Parameter name to display
+            current: Current value
+            min_val: Minimum allowed value
+            max_val: Maximum allowed value
+            
+        Returns:
+            int: Valid input value, or None if cancelled
+        """
+        bindings = KeyBindings()
+
+        @bindings.add(Keys.Escape)
+        def _(event):
+            event.app.exit(result=None)
+
+        style = PtStyle.from_dict({
+            'prompt': f'ansi{config.PRIMARY_COLOR} bold',
+        })
+        
+        session = PromptSession(key_bindings=bindings, style=style)
+        
+        while True:
+            try:
+                self.console.print(f"\n[yellow]{label}[/yellow]")
+                self.console.print(f"[dim]Current: {current} | Range: {min_val}-{max_val} (Press Esc to go back)[/dim]")
+                
+                result = session.prompt(f"> ", default=str(current))
+                
+                if result is None:
+                    return None
+                
+                # Try to parse as int
+                try:
+                    value = int(result)
+                    
+                    # Validate range
+                    if value < min_val or value > max_val:
+                        self.console.print(f"[red]Value must be between {min_val} and {max_val}[/red]")
+                        continue
+                    
+                    return value
+                    
+                except ValueError:
+                    self.console.print(f"[red]Invalid number. Please enter an integer between {min_val} and {max_val}[/red]")
+                    continue
+                    
+            except KeyboardInterrupt:
+                sys.exit(0)
+    
+    def _configure_model_parameters(self, style):
+        """Configure model generation parameters submenu."""
+        while True:
+            self.console.clear()
+            self._show_parameters_summary()
+            
+            choice = questionary.select(
+                "Model Parameters",
+                choices=[
+                    "Temperature",
+                    "Top-k", 
+                    "Top-p",
+                    "Max New Tokens",
+                    "Back"
+                ],
+                style=style,
+                use_arrow_keys=True
+            ).ask()
+            
+            if choice is None:
+                sys.exit(0)
+            
+            if choice == "Back":
+                break
+            
+            elif choice == "Temperature":
+                new_temp = self._get_float_input("Temperature", config.TEMPERATURE, 0.0, 2.0)
+                if new_temp is not None:
+                    config.TEMPERATURE = new_temp
+            
+            elif choice == "Top-k":
+                new_top_k = self._get_int_input("Top-k", config.TOP_K, 1, 100)
+                if new_top_k is not None:
+                    config.TOP_K = new_top_k
+            
+            elif choice == "Top-p":
+                new_top_p = self._get_float_input("Top-p", config.TOP_P, 0.0, 1.0)
+                if new_top_p is not None:
+                    config.TOP_P = new_top_p
+            
+            elif choice == "Max New Tokens":
+                new_max_tokens = self._get_int_input("Max New Tokens", config.MAX_NEW_TOKENS, 1, 4096)
+                if new_max_tokens is not None:
+                    config.MAX_NEW_TOKENS = new_max_tokens
 
     def run(self):
-        # Common style for consistent UI
         style = questionary.Style([
             ('qmark', 'fg:cyan bold'),
             ('question', 'bold'),
@@ -77,6 +227,7 @@ class ManageSettings:
                     "Model",
                     "User Display Name",
                     "Model Display Name",
+                    "Model Parameters",
                     "Autosave Chat",
                     "Back"
                 ],
@@ -84,7 +235,6 @@ class ManageSettings:
                 use_arrow_keys=True
             ).ask()
 
-            # Handle Ctrl+C (returns None)
             if choice is None:
                 sys.exit(0)
             
@@ -103,10 +253,9 @@ class ManageSettings:
                     use_arrow_keys=True
                 ).ask()
 
-                # Handle Ctrl+C
                 if model_choice is None:
                     sys.exit(0)
-                # Select from popular models
+
                 if model_choice == "Select from popular models":
                     selected_model = questionary.select(
                         "Select Model",
@@ -122,7 +271,6 @@ class ManageSettings:
                         use_arrow_keys=True
                     ).ask()
                     
-                    # Handle Ctrl+C
                     if selected_model is None:
                         sys.exit(0)
                     
@@ -143,6 +291,9 @@ class ManageSettings:
                 new_model_name = self._get_input_with_esc("Model Display Name", config.MODEL_DISPLAY_NAME)
                 if new_model_name and new_model_name.strip():
                     config.MODEL_DISPLAY_NAME = new_model_name.strip()
+            
+            elif choice == "Model Parameters":
+                self._configure_model_parameters(style)
 
             elif choice == "Autosave Chat":
                 current_state = "enabled" if config.AUTOSAVE_ENABLED else "disabled"
@@ -152,7 +303,6 @@ class ManageSettings:
                     style=style
                 ).ask()
                 
-                # Handle Ctrl+C
                 if toggle_result is None:
                     sys.exit(0)
                 
@@ -175,5 +325,16 @@ class ManageSettings:
             f"Primary Color: [cyan]{config.PRIMARY_COLOR}[/cyan]\n"
             f"Secondary Color: [cyan]{config.SECONDARY_COLOR}[/cyan]\n"
             f"Autosave: {autosave_status}",
+            border_style="cyan"
+        ))
+    
+    def _show_parameters_summary(self):
+        """Display current model parameters."""
+        self.console.print(Panel.fit(
+            f"[bold]Model Parameters[/bold]\n\n"
+            f"Temperature: [cyan]{config.TEMPERATURE}[/cyan]\n"
+            f"Top-k: [cyan]{config.TOP_K}[/cyan]\n"
+            f"Top-p: [cyan]{config.TOP_P}[/cyan]\n"
+            f"Max New Tokens: [cyan]{config.MAX_NEW_TOKENS}[/cyan]",
             border_style="cyan"
         ))
