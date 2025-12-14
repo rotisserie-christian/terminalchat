@@ -109,7 +109,7 @@ def main():
             # Generate and stream response
             try:
                 generator = model_handler.generate_stream(prompt)
-                full_response = ui.display_assistant_stream(generator)
+                full_response = ui.display_model_stream(generator)
                 context_manager.add_message("assistant", full_response)
                 
                 # Autosave after assistant response if enabled
