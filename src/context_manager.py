@@ -1,17 +1,24 @@
 from typing import List, Dict
 from src.system_prompt import load_system_prompt
 
+
 # Sentinel value to distinguish between "not provided" and "explicitly None"
 _USE_DEFAULT = object()
 
+
 class ContextManager:
     """
-    Manages the context that is sent to the model
+    Manages conversation history with automatic context window pruning
+    
+    Formats messages for the model and removes oldest messages when the
+    context exceeds the model's limits. System prompt is always preserved
     """
+
     def __init__(self, system_prompt=_USE_DEFAULT):
         """
         Initialize the ContextManager with the system prompt
         """
+
         if system_prompt is _USE_DEFAULT:
             prompt = load_system_prompt()
         else:
@@ -30,9 +37,6 @@ class ContextManager:
     def prepare_prompt(self, tokenizer, max_length):
         """
         Prepare a prompt that fits within the model's context window
-    
-        Attempts to include full conversation history. If too long, prunes oldest
-        messages while always preserving the system prompt.
         
         Pruning strategy:
             - System prompt (index 0) is always preserved
@@ -47,6 +51,7 @@ class ContextManager:
         Returns:
         str: Formatted prompt string ready for model input
         """
+
         try:
             full_prompt = tokenizer.apply_chat_template(self.messages, tokenize=False, add_generation_prompt=True)
             tokenized = tokenizer(full_prompt, return_tensors='pt')
