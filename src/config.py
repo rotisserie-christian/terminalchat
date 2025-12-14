@@ -1,14 +1,30 @@
-# Configuration for Terminal Chat
+"""
+Loads and saves user settings from config.json 
+
+Configuration values are stored as module-level globals, automatically loaded on import
+
+Available settings:
+- MODEL_NAME: HuggingFace model identifier
+- USER_DISPLAY_NAME: Name shown for user messages
+- MODEL_DISPLAY_NAME: Name shown for model messages  
+- PRIMARY_COLOR: Main UI color theme
+- SECONDARY_COLOR: Accent UI color theme
+- AUTOSAVE_ENABLED: save chat after each message
+"""
+
+
 import json
 import os
 
+
 # Default values
 DEFAULT_MODEL_NAME = "Qwen/Qwen3-0.6B"
-DEFAULT_USER_DISPLAY_NAME = "Me"
+DEFAULT_USER_DISPLAY_NAME = "Me" 
 DEFAULT_MODEL_DISPLAY_NAME = "Model"
 DEFAULT_PRIMARY_COLOR = "green"
 DEFAULT_SECONDARY_COLOR = "blue"
-DEFAULT_AUTOSAVE_ENABLED = False
+DEFAULT_AUTOSAVE_ENABLED = False 
+
 
 # Configuration values (will be loaded from file or use defaults)
 MODEL_NAME = DEFAULT_MODEL_NAME
@@ -18,10 +34,13 @@ PRIMARY_COLOR = DEFAULT_PRIMARY_COLOR
 SECONDARY_COLOR = DEFAULT_SECONDARY_COLOR
 AUTOSAVE_ENABLED = DEFAULT_AUTOSAVE_ENABLED
 
+
 CONFIG_FILE = "config.json"
 
+
 def load_config():
-    """Load configuration from file, or use defaults if file doesn't exist."""
+    """Load configuration from file, or use defaults if file doesn't exist"""
+
     global MODEL_NAME, USER_DISPLAY_NAME, MODEL_DISPLAY_NAME, PRIMARY_COLOR, SECONDARY_COLOR, AUTOSAVE_ENABLED
     
     if os.path.exists(CONFIG_FILE):
@@ -46,7 +65,8 @@ def load_config():
         AUTOSAVE_ENABLED = DEFAULT_AUTOSAVE_ENABLED
 
 def save_config():
-    """Save current configuration to file."""
+    """Save current configuration to file"""
+
     config = {
         "model_name": MODEL_NAME,
         "user_display_name": USER_DISPLAY_NAME,
