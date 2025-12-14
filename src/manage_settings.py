@@ -1,4 +1,3 @@
-"""Setup sequence for Terminal Chat configuration."""
 from rich.console import Console
 from rich.panel import Panel
 from prompt_toolkit import PromptSession
@@ -6,15 +5,29 @@ from prompt_toolkit.key_binding import KeyBindings
 from prompt_toolkit.keys import Keys
 from prompt_toolkit.styles import Style as PtStyle
 import questionary
+import sys
 import src.config as config
 
 class ManageSettings:
+    """
+    Allows user to manage these settings:
+
+    - Model (select from list/enter manually)
+    - User Display Name (enter manually)
+    - Model Display Name (enter manually)
+    - Autosave Chat (enabled/disabled)
+
+    Settings are persisted to config.json
+    """
     def __init__(self, console):
         self.console = console
         config.load_config()
     
     def _get_input_with_esc(self, label: str, default: str) -> str | None:
-        """Get input with Esc key support to cancel."""
+        """
+        Gets input for options that require manual entry 
+        Esc key support to cancel.
+        """
         bindings = KeyBindings()
 
         @bindings.add(Keys.Escape)
@@ -36,13 +49,10 @@ class ManageSettings:
             result = session.prompt(f"> ", default=default)
             return result
         except KeyboardInterrupt:
-            return None # Treat Ctrl+C same as Esc/Cancel in this context if desired, or let it propagate.
-            # Usually Ctrl+C exits app, but here we might just want to go back.
-            # Let's return None to go back.
-            return None
+            # Exit the entire application
+            sys.exit(0)
 
     def run(self):
-        """Run the setup sequence."""
         # Common style for consistent UI
         style = questionary.Style([
             ('qmark', 'fg:cyan bold'),
@@ -74,6 +84,10 @@ class ManageSettings:
                 use_arrow_keys=True
             ).ask()
 
+            # Handle Ctrl+C (returns None)
+            if choice is None:
+                sys.exit(0)
+            
             if choice == "Back":
                 break
             
@@ -89,6 +103,10 @@ class ManageSettings:
                     use_arrow_keys=True
                 ).ask()
 
+                # Handle Ctrl+C
+                if model_choice is None:
+                    sys.exit(0)
+                # Select from popular models
                 if model_choice == "Select from popular models":
                     selected_model = questionary.select(
                         "Select Model",
@@ -103,6 +121,10 @@ class ManageSettings:
                         style=style,
                         use_arrow_keys=True
                     ).ask()
+                    
+                    # Handle Ctrl+C
+                    if selected_model is None:
+                        sys.exit(0)
                     
                     if selected_model != "Back":
                         config.MODEL_NAME = selected_model
@@ -130,8 +152,11 @@ class ManageSettings:
                     style=style
                 ).ask()
                 
-                if toggle_result is not None:
-                    config.AUTOSAVE_ENABLED = toggle_result
+                # Handle Ctrl+C
+                if toggle_result is None:
+                    sys.exit(0)
+                
+                config.AUTOSAVE_ENABLED = toggle_result
 
         # Save configuration
         if config.save_config():
@@ -152,4 +177,3 @@ class ManageSettings:
             f"Autosave: {autosave_status}",
             border_style="cyan"
         ))
-
