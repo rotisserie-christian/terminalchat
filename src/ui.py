@@ -32,9 +32,13 @@ class TerminalUI:
         
         # Prompt toolkit session
         self.session = PromptSession(
-            style=Style.from_dict({'prompt': f'ansi{config.PRIMARY_COLOR} bold'})
+            style=Style.from_dict({
+                'prompt': f'ansi{config.PRIMARY_COLOR} bold',
+                'bottom-toolbar': 'noinherit',
+                'bottom-toolbar.text': 'fg:#909090'  # text color
+            })
         )
-        
+
         # Questionary menu style (used by all menus)
         self._menu_style = questionary.Style([
             ('qmark', 'fg:cyan bold'),
@@ -86,15 +90,13 @@ class TerminalUI:
             event.app.exit(result='MANUAL_SAVE')
         
         try:
-            # display keyboard shortcuts
-            bottom_toolbar = HTML(
-                '<style fg="#909090">Ctrl+C: Exit  |  Ctrl+R: Return to Menu  |  Ctrl+S: Save</style>'
-            )
+            def get_toolbar():
+                return [('', 'Ctrl+C: Exit  |  Ctrl+R: Return to Menu  |  Ctrl+S: Save')]
             
             result = self.session.prompt(
                 f"\n[{config.USER_DISPLAY_NAME}] > ",
                 key_bindings=bindings,
-                bottom_toolbar=bottom_toolbar
+                bottom_toolbar=get_toolbar
             )
             return result
         except (EOFError, KeyboardInterrupt):
