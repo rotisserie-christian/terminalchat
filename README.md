@@ -1,7 +1,6 @@
 # Terminal Chat
 
-A terminal-based chat interface for local language models.
-It's meant to be a simple and free system for brainstorming ideas with total privacy.
+A terminal-based chat interface for local language models. It has rag and saving features, disabled by default but easily customizable. It's meant to be a simple harness for getting started with whatever you want to make.  
 
 ## Installation
 
