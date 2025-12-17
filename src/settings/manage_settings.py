@@ -4,6 +4,7 @@ import questionary
 import src.config as config
 from .input_helpers import get_text_input
 from .model_parameters_menu import ModelParametersMenu
+from .rag_settings_menu import RAGSettingsMenu
 
 
 class ManageSettings:
@@ -15,6 +16,7 @@ class ManageSettings:
     - User Display Name
     - Model Display Name
     - Model Parameters (submenu)
+    - RAG Settings (submenu)
     - Autosave Chat
     
     Settings are persisted to config.json
@@ -23,6 +25,7 @@ class ManageSettings:
     def __init__(self, console):
         self.console = console
         self.params_menu = ModelParametersMenu(console)
+        self.rag_menu = RAGSettingsMenu(console)
         config.load_config()
     
     def run(self):
@@ -52,6 +55,7 @@ class ManageSettings:
                     "User Display Name",
                     "Model Display Name",
                     "Model Parameters",
+                    "RAG Settings",
                     "Autosave Chat",
                     "Back"
                 ],
@@ -80,6 +84,9 @@ class ManageSettings:
             
             elif choice == "Model Parameters":
                 self.params_menu.show(style)
+            
+            elif choice == "RAG Settings":
+                self.rag_menu.show(style)
 
             elif choice == "Autosave Chat":
                 self._configure_autosave(style)
@@ -111,8 +118,9 @@ class ManageSettings:
             selected_model = questionary.select(
                 "Select Model",
                 choices=[
-                    "Qwen/Qwen3-0.6B",
+                    "openai-community/gpt2-medium",
                     "openai-community/gpt2-large",
+                    "google/gemma-2b-it",
                     "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
                     "HuggingFaceTB/SmolLM-135M-Instruct",
                     "Back"
@@ -151,6 +159,8 @@ class ManageSettings:
         """Display current configuration summary"""
 
         autosave_status = "[green]Enabled[/green]" if config.AUTOSAVE_ENABLED else "[red]Disabled[/red]"
+        rag_status = "[green]Enabled[/green]" if config.RAG_ENABLED else "[red]Disabled[/red]"
+        
         self.console.print(Panel.fit(
             f"[bold]Current Configuration[/bold]\n\n"
             f"Model: [cyan]{config.MODEL_NAME}[/cyan]\n"
@@ -158,6 +168,7 @@ class ManageSettings:
             f"Model Display: [cyan]{config.MODEL_DISPLAY_NAME}[/cyan]\n"
             f"Primary Color: [cyan]{config.PRIMARY_COLOR}[/cyan]\n"
             f"Secondary Color: [cyan]{config.SECONDARY_COLOR}[/cyan]\n"
-            f"Autosave: {autosave_status}",
+            f"Autosave: {autosave_status}\n"
+            f"RAG: {rag_status}",
             border_style="cyan"
         ))

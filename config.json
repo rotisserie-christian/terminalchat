@@ -1,8 +1,11 @@
 {
   "model_name": "Qwen/Qwen3-0.6B",
   "user_display_name": "me",
-  "model_display_name": "butt",
+  "model_display_name": "model",
   "primary_color": "green",
   "secondary_color": "blue",
-  "autosave_enabled": false
+  "autosave_enabled": false,
+  "rag_enabled": false,
+  "rag_context_percentage": 0.25,
+  "rag_top_k": 10
 }

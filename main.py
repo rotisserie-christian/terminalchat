@@ -57,23 +57,30 @@ def main():
                 ui.display_error("Failed to load model. Exiting.")
                 return
 
-        # Initialize RAG Manager
-        ui.display_system_message("Initializing RAG system...")
-        rag_manager = RAGManager()
-        
-        with ui.console.status("[bold green]Loading knowledge base...") as status:
-            if rag_manager.load(show_progress=False):
-                stats = rag_manager.get_stats()
-                if stats['num_chunks'] > 0:
-                    ui.display_system_message(
-                        f"✓ RAG enabled: {stats['num_chunks']} chunks from {stats['num_files']} files"
-                    )
-                    if stats['files']:
-                        ui.display_system_message(f"  Files: {', '.join(stats['files'])}")
+        # Initialize RAG Manager if enabled
+        rag_manager = None
+        if config.RAG_ENABLED:
+            ui.display_system_message("Initializing RAG system...")
+            rag_manager = RAGManager()
+            
+            with ui.console.status("[bold green]Loading knowledge base...") as status:
+                if rag_manager.load(show_progress=False):
+                    stats = rag_manager.get_stats()
+                    if stats['num_chunks'] > 0:
+                        ui.display_system_message(
+                            f"✓ RAG enabled: {stats['num_chunks']} chunks from {stats['num_files']} files"
+                        )
+                        if stats['files']:
+                            ui.display_system_message(f"  Files: {', '.join(stats['files'])}")
+                    else:
+                        ui.display_system_message("⚠ No files found in /memory directory. RAG disabled.")
+                        rag_manager = None
                 else:
-                    ui.display_system_message("⚠ No files found in /memory directory. RAG disabled.")
-            else:
-                ui.display_error("Failed to load RAG system. Continuing without RAG.")
+                    ui.display_error("Failed to load RAG system. Continuing without RAG.")
+                    rag_manager = None
+        else:
+            ui.display_system_message("RAG disabled (enable in Settings)")
+
 
         context_manager = ContextManager()
         
@@ -90,9 +97,9 @@ def main():
                     elif msg['role'] == 'assistant':
                         ui.console.print(f"\n[bold {config.SECONDARY_COLOR}]{config.MODEL_DISPLAY_NAME} >[/bold {config.SECONDARY_COLOR}] {msg['content']}")
 
-        # Calculate RAG token budget (25% of available context)
+        # Calculate RAG token budget (configurable percentage of available context)
         available_context = model_handler.context_window - 512  # Reserve 512 for generation
-        rag_token_budget = int(available_context * 0.25)
+        rag_token_budget = int(available_context * config.RAG_CONTEXT_PERCENTAGE)
         
         # Chat loop
         return_to_menu = False
@@ -123,15 +130,15 @@ def main():
 
             context_manager.add_message("user", user_input)
             
-            # Retrieve relevant RAG context for this query
+            # Retrieve relevant RAG context for this query (if RAG enabled)
             rag_context = ""
-            if rag_manager.is_loaded():
+            if rag_manager and rag_manager.is_loaded():
                 try:
                     rag_context, rag_tokens = rag_manager.retrieve(
                         query=user_input,
                         tokenizer=model_handler.tokenizer,
                         max_tokens=rag_token_budget,
-                        top_k=10
+                        top_k=config.RAG_TOP_K
                     )
                     if rag_tokens > 0:
                         ui.display_system_message(f"[dim]Retrieved {rag_tokens} tokens of context[/dim]")
