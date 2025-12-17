@@ -6,6 +6,7 @@ from src.storage import ChatStorage
 from src.ui import TerminalUI
 from src.settings import ManageSettings
 from src.system_prompt import load_system_prompt
+from src.rag import RAGManager
 import src.config as config
 import questionary
 
@@ -56,6 +57,24 @@ def main():
                 ui.display_error("Failed to load model. Exiting.")
                 return
 
+        # Initialize RAG Manager
+        ui.display_system_message("Initializing RAG system...")
+        rag_manager = RAGManager()
+        
+        with ui.console.status("[bold green]Loading knowledge base...") as status:
+            if rag_manager.load(show_progress=False):
+                stats = rag_manager.get_stats()
+                if stats['num_chunks'] > 0:
+                    ui.display_system_message(
+                        f"✓ RAG enabled: {stats['num_chunks']} chunks from {stats['num_files']} files"
+                    )
+                    if stats['files']:
+                        ui.display_system_message(f"  Files: {', '.join(stats['files'])}")
+                else:
+                    ui.display_system_message("⚠ No files found in /memory directory. RAG disabled.")
+            else:
+                ui.display_error("Failed to load RAG system. Continuing without RAG.")
+
         context_manager = ContextManager()
         
         # Restore chat if loaded
@@ -71,6 +90,10 @@ def main():
                     elif msg['role'] == 'assistant':
                         ui.console.print(f"\n[bold {config.SECONDARY_COLOR}]{config.MODEL_DISPLAY_NAME} >[/bold {config.SECONDARY_COLOR}] {msg['content']}")
 
+        # Calculate RAG token budget (25% of available context)
+        available_context = model_handler.context_window - 512  # Reserve 512 for generation
+        rag_token_budget = int(available_context * 0.25)
+        
         # Chat loop
         return_to_menu = False
         while True:
@@ -100,10 +123,27 @@ def main():
 
             context_manager.add_message("user", user_input)
             
-            # Prepare prompt
+            # Retrieve relevant RAG context for this query
+            rag_context = ""
+            if rag_manager.is_loaded():
+                try:
+                    rag_context, rag_tokens = rag_manager.retrieve(
+                        query=user_input,
+                        tokenizer=model_handler.tokenizer,
+                        max_tokens=rag_token_budget,
+                        top_k=10
+                    )
+                    if rag_tokens > 0:
+                        ui.display_system_message(f"[dim]Retrieved {rag_tokens} tokens of context[/dim]")
+                except Exception as e:
+                    ui.display_error(f"RAG retrieval failed: {e}")
+                    rag_context = ""
+            
+            # Prepare prompt with RAG context
             prompt = context_manager.prepare_prompt(
                 model_handler.tokenizer, 
-                model_handler.context_window - 512 # Leave room for generation
+                available_context,
+                rag_context=rag_context
             )
             
             # Generate and stream response

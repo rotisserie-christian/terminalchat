@@ -111,9 +111,8 @@ class ManageSettings:
             selected_model = questionary.select(
                 "Select Model",
                 choices=[
-                    "openai-community/gpt2-medium",
+                    "Qwen/Qwen3-0.6B",
                     "openai-community/gpt2-large",
-                    "google/gemma-2b-it",
                     "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
                     "HuggingFaceTB/SmolLM-135M-Instruct",
                     "Back"
