@@ -3,8 +3,8 @@ import logging
 from typing import List, Dict, Tuple, Optional
 import numpy as np
 from pathlib import Path
-
 from .embeddings import chunk_text, cosine_similarity, EmbeddingModel
+from .embeddings_cache import EmbeddingsCache
 
 
 logger = logging.getLogger(__name__)
@@ -33,6 +33,7 @@ class RAGManager:
         """
         self.memory_dir = memory_dir
         self.embedding_model = EmbeddingModel(embedding_model)
+        self.cache = EmbeddingsCache()
         
         # Storage for chunks and embeddings
         self.chunks: List[str] = []
@@ -47,10 +48,12 @@ class RAGManager:
         
         Steps:
         1. Load embedding model
-        2. Read files from memory directory
-        3. Chunk text with smart boundaries
-        4. Generate embeddings (batch processing)
-        5. Store in memory
+        2. Load cache from disk
+        3. Read files from memory directory
+        4. For each file:
+           - Check if cached and unchanged → use cache
+           - Otherwise → chunk, embed, and cache
+        5. Save updated cache to disk
         
         Args:
             show_progress: Whether to show progress during embedding generation
@@ -71,9 +74,17 @@ class RAGManager:
             os.makedirs(self.memory_dir)
             return True  # No files to load, but not an error
         
-        # Load and chunk all files
+        # Load cache
+        self.cache.load(self.memory_dir)
+        
+        # Track files to process and files that need embedding
         all_chunks = []
+        all_embeddings_list = []
         all_metadata = []
+        files_to_embed = []
+        chunks_to_embed = []
+        
+        existing_files = []
         
         for filename in os.listdir(self.memory_dir):
             filepath = os.path.join(self.memory_dir, filename)
@@ -92,13 +103,16 @@ class RAGManager:
                 logger.debug(f"Skipping unsupported file: {filename}")
                 continue
             
-            # Read and chunk file
-            try:
-                with open(filepath, 'r', encoding='utf-8') as f:
-                    text = f.read()
-                
-                file_chunks = chunk_text(text)
+            existing_files.append(filename)
+            
+            # Try to get from cache first
+            cached_result = self.cache.get(filename, filepath)
+            
+            if cached_result is not None:
+                # Cache hit - use cached data
+                file_chunks, file_embeddings = cached_result
                 all_chunks.extend(file_chunks)
+                all_embeddings_list.append(file_embeddings)
                 
                 # Track metadata for each chunk
                 for chunk in file_chunks:
@@ -107,34 +121,88 @@ class RAGManager:
                         'filepath': filepath
                     })
                 
-                logger.info(f"Loaded {len(file_chunks)} chunks from {filename}")
+                logger.info(f"Loaded {len(file_chunks)} chunks from {filename} (cached)")
                 
-            except Exception as e:
-                logger.error(f"Error loading file {filename}: {e}")
-                continue
+            else:
+                # Cache miss - need to process file
+                try:
+                    with open(filepath, 'r', encoding='utf-8') as f:
+                        text = f.read()
+                    
+                    file_chunks = chunk_text(text)
+                    
+                    if not file_chunks:
+                        logger.warning(f"No chunks generated from {filename}")
+                        continue
+                    
+                    # Store for batch embedding
+                    start_idx = len(all_chunks)
+                    all_chunks.extend(file_chunks)
+                    chunks_to_embed.extend(file_chunks)
+                    files_to_embed.append((filename, filepath, start_idx, len(file_chunks)))
+                    
+                    # Track metadata for each chunk
+                    for chunk in file_chunks:
+                        all_metadata.append({
+                            'filename': filename,
+                            'filepath': filepath
+                        })
+                    
+                    logger.info(f"Processing {len(file_chunks)} chunks from {filename}")
+                    
+                except Exception as e:
+                    logger.error(f"Error loading file {filename}: {e}")
+                    continue
         
-        if not all_chunks:
+        if not all_chunks and not chunks_to_embed:
             logger.warning(f"No content found in {self.memory_dir}")
+            # Clean up cache for deleted files
+            self.cache.clean(existing_files)
+            self.cache.save(self.memory_dir)
             return True  # Not an error, just no files
         
-        # Generate embeddings for all chunks (batch processing)
-        try:
-            logger.info(f"Generating embeddings for {len(all_chunks)} chunks...")
-            self.embeddings = self.embedding_model.encode(
-                all_chunks,
-                batch_size=32,
-                show_progress=show_progress
-            )
+        # Generate embeddings for new/changed files (batch processing)
+        if chunks_to_embed:
+            try:
+                logger.info(f"Generating embeddings for {len(chunks_to_embed)} new/changed chunks...")
+                new_embeddings = self.embedding_model.encode(
+                    chunks_to_embed,
+                    batch_size=32,
+                    show_progress=show_progress
+                )
+                
+                # Update cache for newly processed files
+                embed_offset = 0
+                for filename, filepath, start_idx, num_chunks in files_to_embed:
+                    file_embeddings = new_embeddings[embed_offset:embed_offset + num_chunks]
+                    file_chunks = all_chunks[start_idx:start_idx + num_chunks]
+                    
+                    self.cache.set(filename, filepath, file_chunks, file_embeddings)
+                    all_embeddings_list.append(file_embeddings)
+                    
+                    embed_offset += num_chunks
+                
+            except Exception as e:
+                logger.error(f"Error generating embeddings: {e}")
+                return False
+        
+        # Combine all embeddings
+        if all_embeddings_list:
+            self.embeddings = np.vstack(all_embeddings_list)
             self.chunks = all_chunks
             self.chunk_metadata = all_metadata
             self._loaded = True
             
             logger.info(f"RAG context loaded: {len(self.chunks)} chunks from {len(set(m['filename'] for m in all_metadata))} files")
+        else:
+            logger.warning("No embeddings generated")
             return True
-            
-        except Exception as e:
-            logger.error(f"Error generating embeddings: {e}")
-            return False
+        
+        # Clean up cache for deleted files and save
+        self.cache.clean(existing_files)
+        self.cache.save(self.memory_dir)
+        
+        return True
     
     def retrieve(self, query: str, tokenizer, max_tokens: int, top_k: int = 10) -> Tuple[str, int]:
         """
