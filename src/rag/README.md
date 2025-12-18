@@ -1,16 +1,21 @@
 ### /src/rag
-- `manager.py` - Main RAG orchestrator
+- `manager.py` - Main RAG orchestrator: loads files from `/memory`, chunks text, generates embeddings, retrieves relevant chunks
 - `embeddings.py` - Chunking logic, embedding model management, and cosine similarity calculations
+- `embeddings_cache.py` - Cache embeddings to avoid regenerating for unchanged files
 
 ## RAG Process
 
 1. **Initialization** (on chat start):
-   - Scan `/memory` directory for `.md` and `.txt` files (excluding README)
-   - Read files and chunk by characters (~800 chars/chunk = ~200 tokens)
+   - Scan `/memory` directory for `.md` and `.txt` files
+   - Load embedding cache from disk (`.embeddings_cache.pkl`)
+   - For each file:
+     - Check if file is cached and unchanged (timestamp-based)
+     - If cached: load chunks and embeddings from cache (fast!)
+     - If new/changed: chunk text (~800 chars/chunk) and queue for embedding
+   - Generate embeddings only for new/changed files (batch processing)
+   - Update cache with new embeddings
+   - Save cache to disk
    - Smart chunking respects natural boundaries (paragraphs, lines, sentences, word breaks)
-   - Load embedding model (`all-MiniLM-L6-v2` via `sentence-transformers`)
-   - Generate embeddings for all chunks (batch processing for speed)
-   - Store chunks and embeddings in memory
 
 2. **Query-Time Retrieval** (each user message):
    - Generate embedding for user's query
