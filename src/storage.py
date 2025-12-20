@@ -1,12 +1,28 @@
+import json
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Optional
 from .exceptions import ChatSaveError, ChatLoadError
 
 logger = logging.getLogger(__name__)
 
+
 class ChatStorage:
+    """
+    Manages saving and loading chat history to/from JSON files
+    
+    Stores chat sessions in the chats/ directory with timestamps
+    """
+    
     def __init__(self, chats_dir: str = "chats"):
+        """
+        Initialize chat storage
+        
+        Args:
+            chats_dir: Directory for storing chat files
+        """
+
         self.chats_dir = Path(chats_dir)
         self._ensure_chats_directory()
     
@@ -17,7 +33,7 @@ class ChatStorage:
         Raises:
             ChatSaveError: If directory cannot be created
         """
-        
+
         try:
             self.chats_dir.mkdir(parents=True, exist_ok=True)
         except PermissionError as e:
@@ -41,7 +57,7 @@ class ChatStorage:
         
         Args:
             messages: List of message dictionaries
-            filename: Optional filename. Auto-generated if None
+            filename: Optional filename. Auto-generated if None.
             
         Returns:
             str: The filename used (with .json extension)
@@ -75,16 +91,6 @@ class ChatStorage:
         
         filepath = self.chats_dir / filename
         
-        # Don't overwrite existing files without explicit filename
-        if filepath.exists() and not filename:
-            logger.warning(f"File {filename} already exists, generating new name")
-            counter = 1
-            while filepath.exists():
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                filename = f"chat_{timestamp}_{counter}.json"
-                filepath = self.chats_dir / filename
-                counter += 1
-        
         try:
             # Write to temp file first (atomic write)
             temp_path = filepath.with_suffix('.tmp')
@@ -97,7 +103,7 @@ class ChatStorage:
             logger.info(
                 f"Chat saved successfully",
                 extra={
-                    'filename': filename,
+                    'chat_filename': filename,  # FIXED: was 'filename'
                     'num_messages': len(messages),
                     'size_bytes': filepath.stat().st_size
                 }
@@ -128,7 +134,6 @@ class ChatStorage:
             ChatLoadError: If chat cannot be loaded
             FileNotFoundError: If chat file doesn't exist
         """
-
         if not filename.endswith('.json'):
             filename += '.json'
         
@@ -148,7 +153,10 @@ class ChatStorage:
             
             logger.info(
                 f"Chat loaded successfully",
-                extra={'filename': filename, 'num_messages': len(messages)}
+                extra={
+                    'chat_filename': filename,  # FIXED: was 'filename'
+                    'num_messages': len(messages)
+                }
             )
             return messages
             
@@ -175,7 +183,7 @@ class ChatStorage:
         Raises:
             ChatLoadError: If chats directory cannot be read
         """
-
+        
         try:
             files = [
                 f.name for f in self.chats_dir.glob('*.json')
