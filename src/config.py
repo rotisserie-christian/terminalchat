@@ -1,3 +1,21 @@
+"""
+Loads and saves user settings from config.json 
+
+Configuration values are stored as module-level globals, automatically loaded on import
+
+Available settings:
+- MODEL_NAME: HuggingFace model identifier
+- USER_DISPLAY_NAME: Name shown for user messages
+- MODEL_DISPLAY_NAME: Name shown for model messages  
+- PRIMARY_COLOR: Main UI color theme
+- SECONDARY_COLOR: Accent UI color theme
+- AUTOSAVE_ENABLED: save chat after each message
+- RAG_ENABLED: Enable RAG (Retrieval Augmented Generation)
+- RAG_CONTEXT_PERCENTAGE: Percentage of context window reserved for RAG
+- RAG_TOP_K: Number of top similar chunks to consider for retrieval
+"""
+
+import json
 import logging
 from pathlib import Path
 from typing import Optional
@@ -5,6 +23,45 @@ from .exceptions import ConfigError
 
 
 logger = logging.getLogger(__name__)
+
+
+# Default values (model)
+DEFAULT_MODEL_NAME = "Qwen/Qwen3-0.6B"
+DEFAULT_TEMPERATURE = 0.9
+DEFAULT_TOP_K = 50
+DEFAULT_TOP_P = 0.95
+DEFAULT_MAX_NEW_TOKENS = 128
+# Default values (UI + chat)
+DEFAULT_USER_DISPLAY_NAME = "Me" 
+DEFAULT_MODEL_DISPLAY_NAME = "Model"
+DEFAULT_PRIMARY_COLOR = "green"
+DEFAULT_SECONDARY_COLOR = "blue"
+DEFAULT_AUTOSAVE_ENABLED = False
+# Default values (RAG)
+DEFAULT_RAG_ENABLED = False
+DEFAULT_RAG_CONTEXT_PERCENTAGE = 0.25
+DEFAULT_RAG_TOP_K = 10
+
+# Config file path
+CONFIG_FILE = "config.json"
+
+# Global variables (module-level state)
+# Model
+MODEL_NAME = DEFAULT_MODEL_NAME
+TEMPERATURE = DEFAULT_TEMPERATURE
+TOP_K = DEFAULT_TOP_K
+TOP_P = DEFAULT_TOP_P
+MAX_NEW_TOKENS = DEFAULT_MAX_NEW_TOKENS
+# UI + chat
+USER_DISPLAY_NAME = DEFAULT_USER_DISPLAY_NAME
+MODEL_DISPLAY_NAME = DEFAULT_MODEL_DISPLAY_NAME
+PRIMARY_COLOR = DEFAULT_PRIMARY_COLOR
+SECONDARY_COLOR = DEFAULT_SECONDARY_COLOR
+AUTOSAVE_ENABLED = DEFAULT_AUTOSAVE_ENABLED
+# RAG
+RAG_ENABLED = DEFAULT_RAG_ENABLED
+RAG_CONTEXT_PERCENTAGE = DEFAULT_RAG_CONTEXT_PERCENTAGE
+RAG_TOP_K = DEFAULT_RAG_TOP_K
 
 
 def load_config(config_path: Optional[Path] = None) -> bool:
@@ -138,7 +195,7 @@ def save_config(config_path: Optional[Path] = None) -> None:
     }
     
     try:
-        # Write to temp file first, then rename (atomic operation)
+        # Write to temp file first, then rename
         temp_path = path.with_suffix('.tmp')
         with open(temp_path, 'w', encoding='utf-8') as f:
             json.dump(config, f, indent=2)
@@ -150,3 +207,7 @@ def save_config(config_path: Optional[Path] = None) -> None:
     except OSError as e:
         logger.error(f"OS error writing config: {e}", exc_info=True)
         raise ConfigError(f"Failed to save config: {e}") from e
+
+
+# Load config on import
+load_config()
