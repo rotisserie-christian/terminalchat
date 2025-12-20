@@ -1,6 +1,6 @@
 # Terminal Chat
 
-A terminal-based chat interface for local language models. It has rag and saving features, disabled by default but easily customizable. It's meant to be a simple harness for getting started with whatever you want to make.  
+A terminal-based chat interface for local language models. It has rag and save/load features, disabled by default.
 
 ## Installation
 
