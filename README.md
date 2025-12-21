@@ -54,10 +54,14 @@ Settings are stored in `config.json`. You can modify this file directly or use t
 
 ## Project Structure
 
-- `main.py`: Entry point
-- `src/`: See `src/README.md`
-- `memory/`: Add files here for RAG
-- `chats/`: Where chat history is saved (JSON format)
-- `prompts/`: System prompts.
-- `tests/`: See `tests/README.md`
-- `config.json`: 👍
+- **`main.py`** - Entry point
+- **`src/`** - See `src/README.md`
+- **`src/app/`** - See `src/app/README.md`
+- **`src/rag/`** - See `src/rag/README.md`
+- **`src/settings/`** - See `src/settings/README.md`
+- **`src/ui/`** - See `src/ui/README.md`
+- **`memory/`** - Add files here for RAG (see `memory/README.md`)
+- **`chats/`** - Where chat history is saved (JSON format)
+- **`prompts/`** - System prompts
+- **`tests/`** - See `tests/README.md`
+- **`config.json`** - Configuration file

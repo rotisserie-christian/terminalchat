@@ -1,9 +1,9 @@
-### Memory 
+### /memory
 
-Put stuff in here, and any relevant chunks will be automatically piped into context when relevant.
+Add files here for RAG (Retrieval-Augmented Generation). Any relevant chunks will be automatically retrieved and piped into context when relevant to the conversation.
 
-Currently limited to md and txt files
+**Supported file types**: `.md` and `.txt` files
 
-The system will also exclude this file and any others named readme 
+**Note**: The system automatically excludes README files from RAG processing.
 
-There are some penguin facts included as well, I'm using that for testing but you can feel free to leave it if your AI workflow involves penguins
+**Testing**: Sample penguin facts are included for testing purposes - feel free to remove or keep them based on your needs.
