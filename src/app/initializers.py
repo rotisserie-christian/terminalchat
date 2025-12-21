@@ -1,6 +1,6 @@
 import logging
 from typing import Optional
-from src.model_handler import ModelHandler
+from src.models import ModelHandler
 from src.rag import RAGManager
 from src.ui import TerminalUI
 from src.exceptions import ModelLoadError, RAGError

@@ -1,5 +1,5 @@
 from unittest.mock import Mock, MagicMock
-from src.context_manager import ContextManager
+from src.models import ContextManager
 
 
 class TestContextManager:

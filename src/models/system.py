@@ -3,8 +3,9 @@ from pathlib import Path
 # Fallback system prompt
 DEFAULT_SYSTEM_PROMPT = "Keep your answers brief and concise, do not ramble."
 
-# Prompts directory
-PROMPTS_DIR = Path(__file__).resolve().parent.parent / "prompts"
+# Prompts directory - adjust path relative to this new location (src/models/system.py)
+# src/models/system.py -> src/models -> src -> root -> prompts
+PROMPTS_DIR = Path(__file__).resolve().parent.parent.parent / "prompts"
 # The active system prompt file
 ACTIVE_PROMPT_PATH = PROMPTS_DIR / "system.md"
 

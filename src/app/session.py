@@ -1,7 +1,7 @@
 import logging
 from typing import Optional
-from src.model_handler import ModelHandler
-from src.context_manager import ContextManager
+from src.models import ModelHandler
+from src.models import ContextManager
 from src.rag import RAGManager
 import src.config as config
 

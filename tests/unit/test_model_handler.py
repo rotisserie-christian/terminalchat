@@ -1,7 +1,7 @@
 
 import pytest
 from unittest.mock import MagicMock, patch
-from src.model_handler import ModelHandler
+from src.models import ModelHandler
 import src.config as config
 
 @pytest.fixture
@@ -19,8 +19,8 @@ def mock_model():
 
 @pytest.fixture
 def model_handler(mock_tokenizer, mock_model):
-    with patch("src.model_handler.AutoTokenizer.from_pretrained", return_value=mock_tokenizer), \
-         patch("src.model_handler.AutoModelForCausalLM.from_pretrained", return_value=mock_model):
+    with patch("src.models.handler.AutoTokenizer.from_pretrained", return_value=mock_tokenizer), \
+         patch("src.models.handler.AutoModelForCausalLM.from_pretrained", return_value=mock_model):
         handler = ModelHandler()
         return handler
 
@@ -31,18 +31,18 @@ class TestModelHandler:
         assert handler.model_name == "HuggingFaceTB/SmolLM-135M-Instruct"
         assert handler.context_window == 2048  # Default
         
-    @patch("src.model_handler.torch.cuda.is_available", return_value=True)
+    @patch("src.models.handler.torch.cuda.is_available", return_value=True)
     def test_init_cuda_available(self, mock_cuda):
         handler = ModelHandler()
         assert handler.device == "cuda"
         
-    @patch("src.model_handler.torch.cuda.is_available", return_value=False)
+    @patch("src.models.handler.torch.cuda.is_available", return_value=False)
     def test_init_cpu_only(self, mock_cuda):
         handler = ModelHandler()
         assert handler.device == "cpu"
 
-    @patch("src.model_handler.AutoTokenizer.from_pretrained")
-    @patch("src.model_handler.AutoModelForCausalLM.from_pretrained")
+    @patch("src.models.handler.AutoTokenizer.from_pretrained")
+    @patch("src.models.handler.AutoModelForCausalLM.from_pretrained")
     def test_load_success(self, mock_model_cls, mock_tokenizer_cls):
         handler = ModelHandler()
         # Setup mocks to ensure no exceptions
@@ -63,7 +63,7 @@ class TestModelHandler:
         mock_tokenizer_cls.assert_called_once()
         mock_model_cls.assert_called_once()
         
-    @patch("src.model_handler.AutoTokenizer.from_pretrained", side_effect=Exception("Download failed"))
+    @patch("src.models.handler.AutoTokenizer.from_pretrained", side_effect=Exception("Download failed"))
     def test_load_failure(self, mock_tokenizer_cls):
         handler = ModelHandler()
         success = handler.load()
@@ -102,16 +102,16 @@ class TestModelHandler:
     def test_generate_stream(self, model_handler):
         model_handler.load()
         
-        # Mock the tokenizer call and ensure the thread is started
-        
-        with patch("src.model_handler.TextIteratorStreamer") as MockStreamer, \
-             patch("src.model_handler.Thread") as MockThread:
+        # We need to mock the streamer within src.models.streamer
+        with patch("src.models.streamer.TextIteratorStreamer") as MockStreamer, \
+             patch("src.models.streamer.Thread") as MockThread:
             
             streamer_instance = MockStreamer.return_value
             streamer_instance.__iter__.return_value = ["Hello", " world", "<|im_end|>"]
             
             generator = model_handler.generate_stream("Test prompt")
             
+            # Since generate_stream calls stream_response which is generator, this should work
             results = list(generator)
             assert results == ["Hello", " world"]
             
