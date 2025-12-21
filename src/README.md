@@ -1,12 +1,9 @@
 ### /src
 - **`/app`** - Core application logic (session management, chat loop, initialization)
+- **`/config`** - Global configuration management (defaults, validation, persistence)
+- **`/models`** - Model handling, context management, and system prompt logic
 - **`/rag`** - RAG (Retrieval-Augmented Generation) system for memory integration
 - **`/settings`** - Settings management and configuration menus
+- **`/storage`** - JSON-based chat persistence and history management
 - **`/ui`** - Terminal user interface components (display, input, menus)
-- **`config.py`** - Global application settings, configuration persistence, and user preferences
-- **`context_manager.py`** - Chat history tracking, token budget management, and prompt construction
-- **`exceptions.py`** - Custom exception classes for error handling
-- **`logging_config.py`** - Logging configuration and setup
-- **`model_handler.py`** - Model and tokenizer wrapper, handles text generation and streaming
-- **`storage.py`** - JSON-based saving and loading of chat history
-- **`system_prompt.py`** - System prompt file loading and management
+- **`/utils`** - Shared infrastructure (logging, error handling, atomic I/O)
