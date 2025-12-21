@@ -112,6 +112,8 @@ class ModelHandler:
         for new_text in streamer:
             if "<|im_end|>" in new_text:
                 new_text = new_text.replace("<|im_end|>", "")
-                yield new_text
+                if new_text:
+                    yield new_text
                 break
-            yield new_text
+            if new_text:
+                yield new_text
