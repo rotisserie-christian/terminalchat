@@ -3,7 +3,7 @@ from typing import Optional
 from src.models import ModelHandler
 from src.rag import RAGManager
 from src.ui import TerminalUI
-from src.exceptions import ModelLoadError, RAGError
+from src.utils.exceptions import ModelLoadError, RAGError, ModelInferenceError, StorageError
 import src.config as config
 
 logger = logging.getLogger(__name__)

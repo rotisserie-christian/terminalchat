@@ -1,13 +1,10 @@
-"""Terminal Chat - Main entry point."""
-
 import sys
 import logging
-
 from src.storage import ChatStorage
 from src.ui import TerminalUI
 from src.settings import ManageSettings
 import src.config as config
-from src.exceptions import ConfigError
+from src.utils.exceptions import ConfigError
 
 # Import app components after config is loaded
 logger = logging.getLogger(__name__)
@@ -19,7 +16,7 @@ def start_chat_session(
     loaded_filename: str = None
 ) -> bool:
     """
-    Start a chat session.
+    Start a chat session
     
     Returns:
         True to return to menu, False to exit
@@ -56,7 +53,7 @@ def start_chat_session(
 
 
 def main():
-    """Main entry point."""
+    """Main entry point"""
     # Basic logging setup
     logging.basicConfig(
         level=logging.INFO,

@@ -3,7 +3,8 @@ import pickle
 import logging
 from typing import Dict, List, Optional, Tuple
 import numpy as np
-from ..exceptions import CacheError
+from ..utils.exceptions import CacheError
+from ..utils.atomic_writes import atomic_write_pickle
 
 
 logger = logging.getLogger(__name__)
@@ -103,15 +104,8 @@ class EmbeddingsCache:
             # Ensure directory exists
             os.makedirs(memory_dir, exist_ok=True)
             
-            # Write to temp file first (atomic write)
-            temp_path = cache_path + '.tmp'
-            with open(temp_path, 'wb') as f:
-                pickle.dump(self.cache, f, protocol=pickle.HIGHEST_PROTOCOL)
-            
-            # Atomic rename
-            if os.path.exists(cache_path):
-                os.remove(cache_path)
-            os.rename(temp_path, cache_path)
+            # Use shared atomic write utility
+            atomic_write_pickle(self.cache, cache_path)
             
             logger.info(f"Saved cache with {len(self.cache)} entries")
             return True

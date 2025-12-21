@@ -9,7 +9,8 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from ..exceptions import ConfigError
+from ..utils.exceptions import ConfigError
+from ..utils.atomic_writes import atomic_write_json
 from .defaults import *
 from .validators import validate_config
 
@@ -140,11 +141,7 @@ def save_config(config_path: Optional[Path] = None) -> None:
     }
     
     try:
-        # Write to temp file first, then rename (atomic write)
-        temp_path = path.with_suffix('.tmp')
-        with open(temp_path, 'w', encoding='utf-8') as f:
-            json.dump(config, f, indent=2)
-        temp_path.replace(path)
+        atomic_write_json(config, path)
         logger.info(f"Config saved to {path}")
     except PermissionError as e:
         logger.error(f"Permission denied writing config: {path}")
@@ -152,6 +149,9 @@ def save_config(config_path: Optional[Path] = None) -> None:
     except OSError as e:
         logger.error(f"OS error writing config: {e}", exc_info=True)
         raise ConfigError(f"Failed to save config: {e}") from e
+    except Exception as e:
+        logger.error(f"Unexpected error saving config: {e}", exc_info=True)
+        raise ConfigError(f"Unexpected error saving config: {e}") from e
 
 
 def reset_to_defaults() -> None:

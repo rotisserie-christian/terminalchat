@@ -3,7 +3,7 @@ from typing import Optional
 from src.app.session import ChatSession
 from src.storage import ChatStorage
 from src.ui import TerminalUI
-from src.exceptions import StorageError, ModelInferenceError
+from src.utils.exceptions import StorageError, ModelInferenceError
 import src.config as config
 
 

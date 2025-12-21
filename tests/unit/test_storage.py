@@ -2,7 +2,7 @@ import pytest
 import os
 import time
 from src.storage import ChatStorage
-from src.exceptions import ChatLoadError
+from src.utils.exceptions import ChatLoadError
 
 
 class TestChatStorage:
