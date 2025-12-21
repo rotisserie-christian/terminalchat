@@ -24,7 +24,7 @@ class EmbeddingsCache:
     }
     
     Note: Embeddings are stored as lists but returned as float32 numpy arrays
-    to match the dtype of fresh embeddings from sentence-transformers.
+    to match the dtype of fresh embeddings from sentence-transformers
     """
     
     def __init__(self, cache_file: str = ".embeddings_cache.pkl"):
@@ -34,7 +34,6 @@ class EmbeddingsCache:
         Args:
             cache_file: Name of cache file (stored in memory directory)
         """
-
         self.cache_file = cache_file
         self.cache: Dict = {}
     
@@ -49,9 +48,8 @@ class EmbeddingsCache:
             True if cache loaded successfully, False otherwise
             
         Raises:
-            CacheError: If cache file is corrupted beyond recovery
+            CacheError: If cache file is corrupted 
         """
-
         cache_path = os.path.join(memory_dir, self.cache_file)
         
         if not os.path.exists(cache_path):
@@ -97,14 +95,13 @@ class EmbeddingsCache:
         Raises:
             CacheError: If cache cannot be saved
         """
-
         cache_path = os.path.join(memory_dir, self.cache_file)
         
         try:
             # Ensure directory exists
             os.makedirs(memory_dir, exist_ok=True)
             
-            # Use shared atomic write utility
+            # atomic write utility
             atomic_write_pickle(self.cache, cache_path)
             
             logger.info(f"Saved cache with {len(self.cache)} entries")
@@ -133,10 +130,9 @@ class EmbeddingsCache:
             filepath: Full path to the file
             
         Returns:
-            Tuple of (chunks, embeddings) if cache valid, None otherwise.
-            Embeddings are returned as float32 to match sentence-transformers output.
+            Tuple of (chunks, embeddings) if cache valid, None otherwise
+            Embeddings are returned as float32 to match sentence-transformers output
         """
-
         if filename not in self.cache:
             logger.debug(f"Cache miss: {filename} not in cache")
             return None
@@ -183,7 +179,6 @@ class EmbeddingsCache:
             chunks: List of text chunks
             embeddings: Numpy array of embeddings (will be stored as list)
         """
-
         try:
             timestamp = os.path.getmtime(filepath)
         except OSError as e:
@@ -203,25 +198,13 @@ class EmbeddingsCache:
             logger.error(f"Failed to cache {filename}: {e}", exc_info=True)
     
     def invalidate(self, filename: str):
-        """
-        Remove a file from cache
-        
-        Args:
-            filename: Name of file to remove from cache
-        """
-
+        """Remove a file from cache"""
         if filename in self.cache:
             del self.cache[filename]
             logger.debug(f"Invalidated cache for {filename}")
     
     def clean(self, existing_files: List[str]):
-        """
-        Remove cache entries for files that no longer exist
-        
-        Args:
-            existing_files: List of filenames that currently exist
-        """
-
+        """Remove cache entries for files that no longer exist"""
         existing_set = set(existing_files)
         removed = []
         
@@ -239,13 +222,7 @@ class EmbeddingsCache:
         logger.info("Cache cleared")
     
     def get_stats(self) -> Dict:
-        """
-        Get cache statistics
-        
-        Returns:
-            Dictionary with cache stats
-        """
-
+        """Returns: Dictionary with cache stats"""
         try:
             total_chunks = sum(
                 len(entry.get('chunks', [])) 

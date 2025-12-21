@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 def chunk_text(text: str, chunk_size: int = 800, overlap: int = 100) -> List[str]:
-    """Split text into overlapping chunks with smart boundary detection"""
+    """Split text into overlapping chunks"""
     if not text or not text.strip():
         return []
     
