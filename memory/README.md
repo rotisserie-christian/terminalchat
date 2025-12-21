@@ -4,6 +4,6 @@ Add files here for RAG (Retrieval-Augmented Generation). Any relevant chunks wil
 
 **Supported file types**: `.md` and `.txt` files
 
-**Note**: The system automatically excludes README files from RAG processing.
+Readme files are not included
 
-**Testing**: Sample penguin facts are included for testing purposes - feel free to remove or keep them based on your needs.
+There are some penguin facts in here by default, it might come in handy if your work involves penguins.
