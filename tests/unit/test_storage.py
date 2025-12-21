@@ -2,19 +2,20 @@ import pytest
 import os
 import time
 from src.storage import ChatStorage
+from src.exceptions import ChatLoadError
 
 
 class TestChatStorage:
     
     def test_save_chat_with_filename(self, temp_chats_dir, sample_messages):
-        storage = ChatStorage()
+        storage = ChatStorage(temp_chats_dir)
         filename = storage.save_chat(sample_messages, "test_chat.json")
         
         assert filename == "test_chat.json"
         assert os.path.exists(os.path.join(temp_chats_dir, "test_chat.json"))
     
     def test_save_chat_auto_generates_filename(self, temp_chats_dir, sample_messages):
-        storage = ChatStorage()
+        storage = ChatStorage(temp_chats_dir)
         filename = storage.save_chat(sample_messages)
         
         assert filename.startswith("chat_")
@@ -22,13 +23,13 @@ class TestChatStorage:
         assert os.path.exists(os.path.join(temp_chats_dir, filename))
     
     def test_save_chat_adds_json_extension(self, temp_chats_dir, sample_messages):
-        storage = ChatStorage()
+        storage = ChatStorage(temp_chats_dir)
         filename = storage.save_chat(sample_messages, "test_chat")
         
         assert filename == "test_chat.json"
     
     def test_load_chat_returns_messages(self, temp_chats_dir, sample_messages):
-        storage = ChatStorage()
+        storage = ChatStorage(temp_chats_dir)
         storage.save_chat(sample_messages, "test_chat.json")
         
         loaded = storage.load_chat("test_chat.json")
@@ -40,20 +41,20 @@ class TestChatStorage:
         assert loaded[1]["content"] == "Hi there"
     
     def test_load_chat_handles_missing_file(self, temp_chats_dir):
-        storage = ChatStorage()
-        loaded = storage.load_chat("nonexistent.json")
+        storage = ChatStorage(temp_chats_dir)
         
-        assert loaded == []
+        with pytest.raises(FileNotFoundError):
+            storage.load_chat("nonexistent.json")
     
     def test_load_chat_adds_json_extension(self, temp_chats_dir, sample_messages):
-        storage = ChatStorage()
+        storage = ChatStorage(temp_chats_dir)
         storage.save_chat(sample_messages, "test_chat.json")
         
         loaded = storage.load_chat("test_chat")
         assert len(loaded) == 2
     
     def test_list_chats_returns_json_files(self, temp_chats_dir, sample_messages):
-        storage = ChatStorage()
+        storage = ChatStorage(temp_chats_dir)
         storage.save_chat(sample_messages, "chat1.json")
         storage.save_chat(sample_messages, "chat2.json")
         
@@ -64,7 +65,7 @@ class TestChatStorage:
         assert "chat2.json" in chats
     
     def test_list_chats_sorts_newest_first(self, temp_chats_dir, sample_messages):
-        storage = ChatStorage()
+        storage = ChatStorage(temp_chats_dir)
         
         storage.save_chat(sample_messages, "chat1.json")
         time.sleep(0.1)  # Ensure different timestamps
