@@ -160,11 +160,10 @@ class EmbeddingsCache:
             return None
         
         try:
-            # Cache hit!
+            # Cache found
             chunks = cached_entry['chunks']
             
-            # FIXED: Force float32 dtype to match sentence-transformers output
-            # This prevents "float != double" errors in cosine similarity calculations
+            # Force float32 dtype to match sentence-transformers outputs
             embeddings = np.array(cached_entry['embeddings'], dtype=np.float32)
             
             logger.debug(f"Cache hit: {filename} ({len(chunks)} chunks)")
