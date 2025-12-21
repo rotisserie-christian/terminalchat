@@ -5,8 +5,6 @@ import src.config as config
 
 
 class TestConfig:
-    
-    
     def test_load_config_from_file(self):
         test_config = {
             "model_name": "test-model",
