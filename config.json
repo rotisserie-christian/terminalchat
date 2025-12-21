@@ -1,11 +1,15 @@
 {
-  "model_name": "HuggingFaceTB/SmolLM-135M-Instruct",
-  "user_display_name": "me",
-  "model_display_name": "model",
+  "model_name": "custom-model",
+  "temperature": 0.9,
+  "top_k": 50,
+  "top_p": 0.95,
+  "max_new_tokens": 128,
+  "user_display_name": "Me",
+  "model_display_name": "Model",
   "primary_color": "green",
   "secondary_color": "blue",
   "autosave_enabled": false,
-  "rag_enabled": true,
+  "rag_enabled": false,
   "rag_context_percentage": 0.25,
   "rag_top_k": 10
 }
