@@ -1,4 +1,4 @@
-# Testing Documentation
+# Testing 
 
 ## Running Tests
 
@@ -30,7 +30,6 @@ start htmlcov/index.html
 ## Test Structure
 
 ### Unit Tests (`tests/unit/`)
-Tests for individual modules in isolation using mocks for external dependencies.
 
 #### `test_config.py`
 **Module Under Test**: `src/config.py`
