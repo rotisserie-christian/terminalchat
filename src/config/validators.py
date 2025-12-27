@@ -3,7 +3,7 @@ from typing import Dict, List, Optional
 
 def validate_config(config: Dict) -> List[str]:
     """
-    Validate all configuration values
+    Validate configuration values
     
     Args:
         config: Configuration dictionary to validate
@@ -42,15 +42,6 @@ def validate_config(config: Dict) -> List[str]:
 
 
 def validate_rag_percentage(value: float) -> Optional[str]:
-    """
-    Validate RAG context percentage
-    
-    Args:
-        value: Percentage value to validate
-        
-    Returns:
-        Error message if invalid, None if valid
-    """
     if not isinstance(value, (int, float)):
         return f"rag_context_percentage must be a number, got {type(value)}"
     
@@ -61,15 +52,6 @@ def validate_rag_percentage(value: float) -> Optional[str]:
 
 
 def validate_rag_top_k(value: int) -> Optional[str]:
-    """
-    Validate RAG top_k value
-    
-    Args:
-        value: Top-k value to validate
-        
-    Returns:
-        Error message if invalid, None if valid
-    """
     if not isinstance(value, int):
         return f"rag_top_k must be an integer, got {type(value)}"
     
