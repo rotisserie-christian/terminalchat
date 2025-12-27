@@ -2,6 +2,7 @@ from typing import List, Dict, Optional
 from .system import load_system_prompt
 from .prompt_formatter import prepare_prompt
 
+
 # Sentinel value to distinguish between "not provided" and "explicitly None"
 _USE_DEFAULT = object()
 
@@ -19,7 +20,6 @@ class ContextManager:
         """
         Initialize the ContextManager with the system prompt
         """
-
         if system_prompt is _USE_DEFAULT:
             prompt = load_system_prompt()
         else:
