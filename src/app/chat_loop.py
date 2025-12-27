@@ -37,7 +37,6 @@ class ChatLoop:
             storage: Chat storage instance
             loaded_filename: Optional loaded chat filename
         """
-
         self.session = session
         self.ui = ui
         self.storage = storage
@@ -53,7 +52,6 @@ class ChatLoop:
         Returns:
             True if successful
         """
-
         try:
             saved_file = self.storage.save_chat(
                 self.session.context_manager.get_messages(),
@@ -82,7 +80,6 @@ class ChatLoop:
         Returns:
             True to continue, False to exit
         """
-
         # Add user message
         self.session.context_manager.add_message("user", user_input)
         
@@ -125,11 +122,10 @@ class ChatLoop:
         Returns:
             True if should return to menu, False if should exit
         """
-
         while True:
             user_input = self.ui.get_input()
             
-            # Special commands
+            # Keyboard commands
             if user_input == 'MANUAL_SAVE':
                 self.save_chat(auto=False)
                 continue
