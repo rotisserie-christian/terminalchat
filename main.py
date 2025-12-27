@@ -6,7 +6,7 @@ from src.settings import ManageSettings
 import src.config as config
 from src.utils.exceptions import ConfigError
 
-# Import app components after config is loaded
+
 logger = logging.getLogger(__name__)
 
 
@@ -15,19 +15,12 @@ def start_chat_session(
     storage: ChatStorage,
     loaded_filename: str = None
 ) -> bool:
-    """
-    Start a chat session
-    
-    Returns:
-        True to return to menu, False to exit
-    """
-    # Import here to avoid circular imports
+    """Returns: True to return to menu, False to exit"""
     from src.app import (
         ChatSession, ChatLoop,
         ModelInitializer, RAGInitializer, ChatHistoryLoader
     )
     
-    # Initialize components
     model_init = ModelInitializer(ui)
     rag_init = RAGInitializer(ui)
     history_loader = ChatHistoryLoader(ui, storage)
@@ -54,25 +47,24 @@ def start_chat_session(
 
 def main():
     """Main entry point"""
-    # Basic logging setup
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     logger.info("Terminal Chat starting...")
     
-    # Load config FIRST, before creating UI
+    # Load config
     try:
         config.load_config()
     except ConfigError as e:
         print(f"Configuration error: {e}")
         sys.exit(1)
     
-    # NOW create UI (after config is loaded)
+    # Create UI
     ui = TerminalUI()
     storage = ChatStorage()
     
-    # Main menu loop
+    # Main menu 
     while True:
         choice = ui.show_main_menu()
         
