@@ -16,9 +16,7 @@ def prepare_prompt(
     - Chat history: fills remaining space, pruned as needed
     
     Pruning strategy:
-        - System prompt (index 0) is always preserved
-        - RAG context (index 1 if present) is always preserved
-        - Removes oldest messages after system/RAG prompts one at a time
+        - Removes oldest messages after system/RAG prompts, one at a time
         - Re-checks token length after each removal
         - Continues until prompt fits within max_length
     
@@ -31,7 +29,6 @@ def prepare_prompt(
     Returns:
         str: Formatted prompt string ready for model input
     """
-    
     # Build messages with RAG context if provided
     messages_to_format = _build_messages_with_rag(messages, rag_context)
     
@@ -48,7 +45,6 @@ def prepare_prompt(
     except Exception:
         pass
     
-    # Need to prune - start removing oldest chat messages
     # Determine how many messages to preserve (system + optional RAG)
     num_preserved = 2 if rag_context else 1
     
@@ -68,11 +64,11 @@ def prepare_prompt(
         except Exception:
             pass
         
-        # Remove the oldest chat message (right after preserved messages)
+        # Remove the oldest chat message
         if len(pruned_messages) > num_preserved:
             pruned_messages.pop(num_preserved)
     
-    # If we still don't fit, try with just the last user message
+    # If it still doesn't fit, try with just the last user message
     try:
         last_message = messages[-1] if messages else {"role": "user", "content": ""}
         minimal_messages = messages_to_format[:num_preserved] + [last_message]
@@ -97,7 +93,7 @@ def _build_messages_with_rag(
     rag_context: Optional[str]
 ) -> List[Dict[str, str]]:
     """
-    Build message list with RAG context injected after system prompt.
+    Build message list with RAG context injected after system prompt
     
     Structure:
     - messages[0]: system prompt (always present if configured)
