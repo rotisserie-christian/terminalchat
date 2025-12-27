@@ -48,16 +48,7 @@ class ChatSession:
         )
     
     def get_rag_context(self, query: str) -> str:
-        """
-        Retrieve RAG context for a query
-        
-        Args:
-            query: User's query
-            
-        Returns:
-            Retrieved context string (empty if unavailable)
-        """
-
+        """Returns: Retrieved context string (empty if unavailable)"""
         if not self.rag_manager or not self.rag_manager.is_loaded():
             return ""
         
@@ -79,16 +70,7 @@ class ChatSession:
             return ""
     
     def prepare_prompt(self, rag_context: str) -> str:
-        """
-        Prepare prompt with optional RAG context
-        
-        Args:
-            rag_context: RAG context string
-            
-        Returns:
-            Formatted prompt string
-        """
-
+        """Returns: Formatted prompt string"""
         return self.context_manager.prepare_prompt(
             self.model_handler.tokenizer,
             self.available_context,
@@ -96,14 +78,5 @@ class ChatSession:
         )
     
     def generate_response(self, prompt: str):
-        """
-        Generate streaming response
-        
-        Args:
-            prompt: Formatted prompt
-            
-        Yields:
-            Text tokens
-        """
-
+        """Yields: Text tokens (streaming)"""
         return self.model_handler.generate_stream(prompt)

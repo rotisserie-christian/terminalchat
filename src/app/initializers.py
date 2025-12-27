@@ -6,26 +6,24 @@ from src.ui import TerminalUI
 from src.utils.exceptions import ModelLoadError, RAGError, ModelInferenceError, StorageError
 import src.config as config
 
+
 logger = logging.getLogger(__name__)
 
 
 class ModelInitializer:
-    """Handles model loading"""
+    """Model loading"""
     
     def __init__(self, ui: TerminalUI):
         self.ui = ui
     
     def load(self, model_name: str) -> Optional[ModelHandler]:
         """
-        Load model
-        
         Args:
-            model_name: Model identifier
+            model_name: HF ID
             
         Returns:
             ModelHandler if successful, None otherwise
         """
-
         self.ui.display_system_message(f"Initializing model: {model_name}")
         
         handler = ModelHandler(model_name)
@@ -50,19 +48,13 @@ class ModelInitializer:
 
 
 class RAGInitializer:
-    """Handles RAG initialization"""
-    
+    """RAG initialization"""
+
     def __init__(self, ui: TerminalUI):
         self.ui = ui
     
     def load(self) -> Optional[RAGManager]:
-        """
-        Initialize RAG system if enabled
-        
-        Returns:
-            RAGManager if successful, None if disabled or failed
-        """
-
+        """Returns: RAGManager if successful, None if disabled or failed"""
         if not config.RAG_ENABLED:
             self.ui.display_system_message("RAG disabled (enable in Settings)")
             return None
@@ -79,12 +71,12 @@ class RAGInitializer:
             
             if stats['num_chunks'] == 0:
                 self.ui.display_system_message(
-                    "⚠ No files in /memory directory. RAG disabled."
+                    "No files in /memory directory. RAG disabled."
                 )
                 return None
             
             self.ui.display_system_message(
-                f"✓ RAG enabled: {stats['num_chunks']} chunks "
+                f"RAG enabled with {stats['num_chunks']} chunks "
                 f"from {stats['num_files']} files"
             )
             
@@ -107,7 +99,7 @@ class RAGInitializer:
 
 
 class ChatHistoryLoader:
-    """Handles loading chat history"""
+    """Load chat history"""
     
     def __init__(self, ui: TerminalUI, storage):
         self.ui = ui
@@ -124,7 +116,6 @@ class ChatHistoryLoader:
         Returns:
             True if successful
         """
-
         try:
             messages = self.storage.load_chat(filename)
             context_manager.messages = messages
