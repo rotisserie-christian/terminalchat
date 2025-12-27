@@ -1,7 +1,6 @@
 import logging
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
-
 from .streamer import stream_response
 import src.config as config
 
@@ -32,7 +31,6 @@ class ModelHandler:
         Returns:
             bool: True if successful, otherwise False
         """
-
         logger.info(f"Loading model {self.model_name} on {self.device}...")
         try:
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
@@ -51,10 +49,7 @@ class ModelHandler:
             return False
 
     def _detect_context_window(self):
-        """
-        Determine the size of the context window
-        """
-
+        """Determine the size of the context window"""
         if hasattr(self.tokenizer, "model_max_length"):
             self.context_window = self.tokenizer.model_max_length
         elif hasattr(self.model.config, "max_position_embeddings"):
@@ -80,7 +75,6 @@ class ModelHandler:
         Yields:
             str: Text tokens as they're produced
         """
-        
         return stream_response(
             model=self.model,
             tokenizer=self.tokenizer,
