@@ -174,6 +174,3 @@ def reset_to_defaults() -> None:
     RAG_ENABLED = DEFAULT_RAG_ENABLED
     RAG_CONTEXT_PERCENTAGE = DEFAULT_RAG_CONTEXT_PERCENTAGE
     RAG_TOP_K = DEFAULT_RAG_TOP_K
-    
-    # Also load defaults to trigger any side effects if we add them later
-    # but for now this is just memory reset.
