@@ -68,11 +68,10 @@ class ChatStorage:
             ChatSaveError: If chat cannot be saved
             ValueError: If messages list is invalid
         """
-        
-        # 1. Validation
+        # Validation
         validate_chat_messages(messages)
         
-        # 2. Filename Resolution
+        # Filename Resolution
         if not filename:
             filename = generate_chat_filename()
         
@@ -81,7 +80,7 @@ class ChatStorage:
         
         filepath = self.chats_dir / filename
         
-        # 3. Execution
+        # Execution
         save_chat_file(messages, filepath)
         
         return filename

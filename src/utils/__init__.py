@@ -1,8 +1,4 @@
-"""
-Utils module
-
-Shared utilities for I/O, logging, and error handling.
-"""
+"""Shared utilities for I/O, logging, and error handling"""
 
 from .atomic_writes import (
     atomic_write_json,

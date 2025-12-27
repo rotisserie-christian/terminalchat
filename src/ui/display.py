@@ -21,9 +21,7 @@ class DisplayManager:
         self.console = Console(theme=custom_theme)
     
     def display_welcome(self):
-        """
-        Welcome box, displays title and portfolio link
-        """
+        """Welcome box, displays title and portfolio link"""
         self.console.print(
             Panel.fit(
                 f"[bold {config.SECONDARY_COLOR}]Terminal Chat[/bold {config.SECONDARY_COLOR}]\n"
